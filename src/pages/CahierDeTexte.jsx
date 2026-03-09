@@ -1,5 +1,5 @@
 import React from "react";
-import "./CahierDeTextes.css";
+import "./CahierDeTexte.css";
 
 export default function CahierDeTextes() {
   return (
