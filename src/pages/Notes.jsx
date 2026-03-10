@@ -2,69 +2,89 @@ import React, { useState } from "react";
 import "./Notes.css";
 
 const TRIMESTRES = [
-  { id: "t1", label: "1er Trimestre" },
-  { id: "r1", label: "Relevé 1" },
-  { id: "r2", label: "Relevé 2" },
-  { id: "t2", label: "2ème Trimestre" },
-  { id: "r3", label: "Relevé" },
-  { id: "r4", label: "Relevé" },
-  { id: "t3", label: "3ème Trimestre" },
-  { id: "r5", label: "Relevé" },
-  { id: "r6", label: "Relevé" },
+  { id: "t1",    label: "1er Trimestre" },
+  { id: "r1",    label: "Relevé 1" },
+  { id: "r2",    label: "Relevé 2" },
+  { id: "t2",    label: "2ème Trimestre" },
+  { id: "r3",    label: "Relevé" },
+  { id: "r4",    label: "Relevé" },
+  { id: "t3",    label: "3ème Trimestre" },
+  { id: "r5",    label: "Relevé" },
+  { id: "r6",    label: "Relevé" },
   { id: "annee", label: "Année" },
 ];
 
-const NOTES_DATA = [
-  { matiere: "Français", prof: "Mme Fischer N.", moyenne: "14,7", evals: ["6,5/10", "15", "15", "13,5", "17"] },
-  { matiere: "Mathématiques", prof: "Mme David S.", moyenne: "15,58", evals: ["17", "18,5", "8,5/10", "12", "13"] },
-  { matiere: "Anglais LV1", prof: "M. Guellec L.", moyenne: "17,5", evals: ["16", "8/10", "18,5", "15", "20"] },
-  { matiere: "Éducation Physique", prof: "M. Chapelot B.", moyenne: "13,33", evals: ["12,5", "15"] },
-  { matiere: "Arts Plastiques", prof: "Mme Decroix C.", moyenne: "15", evals: ["15", "16"] },
-  { matiere: "Éducation Musicale", prof: "Mme Cornier C.", moyenne: "16,5", evals: ["4,5/5", "15"] },
-  { matiere: "Physique-Chimie", prof: "Mme Bredel M.", moyenne: "19,33", evals: ["19", "15/15", "14,75"] },
-  { matiere: "Sciences Vie & Terre", prof: "Mme Tlich Z.", moyenne: "11,5", evals: ["11,5", "7/10", "9/10"] },
-  { matiere: "Technologie", prof: "M. Olivares D.", moyenne: "19,67", evals: ["20", "20"] },
-  { matiere: "LCA Latin", prof: "Mme Langlois S.", moyenne: "18,5", evals: ["7/10", "9/10"] },
-  { matiere: "Allemand LV2", prof: "Mme Bourguignon A.", moyenne: "14,17", evals: ["10,5", "16", "8,5/10", "18,5", "5/5"] },
-  { matiere: "Histoire-Géo", prof: "Mme Hemet I.", moyenne: "11,88", evals: ["Abs", "7/10", "12,25", "5,75/10", "13,75", "8"] },
-];
+// Seul le Relevé 2 du 2ème trimestre a des données pour l'instant
+const DATA = {
+  r2: {
+    conseil: "Conseil de classe de CINQUIÈME F EUROP. le vendredi 13 mars 2026 à 16:45",
+    moyenneGenerale: "16,01",
+    moyenneClasse: "14,95",
+    moyenneMin: "12,84",
+    moyenneMax: "17,66",
+    notes: [
+      { matiere: "Français",            prof: "Mme Fischer N.",     moyenne: "14,7",  evals: ["6,5/10", "15", "15", "13,5", "17"] },
+      { matiere: "Mathématiques",       prof: "Mme David S.",       moyenne: "15,58", evals: ["17", "18,5", "8,5/10", "12", "13"] },
+      { matiere: "Anglais LV1",         prof: "M. Guellec L.",      moyenne: "17,5",  evals: ["16", "8/10", "18,5", "15", "20"] },
+      { matiere: "Éducation Physique",  prof: "M. Chapelot B.",     moyenne: "13,33", evals: ["12,5", "15"] },
+      { matiere: "Arts Plastiques",     prof: "Mme Decroix C.",     moyenne: "15",    evals: ["15", "16"] },
+      { matiere: "Éducation Musicale",  prof: "Mme Cornier C.",     moyenne: "16,5",  evals: ["4,5/5", "15"] },
+      { matiere: "Physique-Chimie",     prof: "Mme Bredel M.",      moyenne: "19,33", evals: ["19", "15/15", "14,75"] },
+      { matiere: "Sciences Vie & Terre",prof: "Mme Tlich Z.",       moyenne: "11,5",  evals: ["11,5", "7/10", "9/10"] },
+      { matiere: "Technologie",         prof: "M. Olivares D.",     moyenne: "19,67", evals: ["20", "20"] },
+      { matiere: "LCA Latin",           prof: "Mme Langlois S.",    moyenne: "18,5",  evals: ["7/10", "9/10"] },
+      { matiere: "Allemand LV2",        prof: "Mme Bourguignon A.", moyenne: "14,17", evals: ["10,5", "16", "8,5/10", "18,5", "5/5"] },
+      { matiere: "Histoire-Géo",        prof: "Mme Hemet I.",       moyenne: "11,88", evals: ["Abs", "7/10", "12,25", "5,75/10", "13,75", "8"] },
+    ],
+    moyennes: [
+      { matiere: "Français",            eleve: "14,7",  classe: "15,43", min: "12,7",  max: "19,4" },
+      { matiere: "Mathématiques",       eleve: "15,58", classe: "14,2",  min: "9,75",  max: "17,75" },
+      { matiere: "Anglais LV1",         eleve: "17,5",  classe: "13,54", min: "9,7",   max: "17,5" },
+      { matiere: "EPS",                 eleve: "13,33", classe: "14,86", min: "11,67", max: "16,67" },
+      { matiere: "Arts Plastiques",     eleve: "15",    classe: "16,08", min: "10",    max: "20" },
+      { matiere: "Éducation Musicale",  eleve: "16,5",  classe: "16,04", min: "11,5",  max: "19" },
+      { matiere: "Physique-Chimie",     eleve: "19,33", classe: "14,6",  min: "9,22",  max: "20" },
+      { matiere: "SVT",                 eleve: "19,67", classe: "18,39", min: "17",    max: "20" },
+      { matiere: "Technologie",         eleve: "18,5",  classe: "18,18", min: "14,5",  max: "20" },
+      { matiere: "Latin",               eleve: "14,17", classe: "14,67", min: "13,83", max: "16" },
+      { matiere: "Allemand LV2",        eleve: "11,88", classe: "11,98", min: "8,44",  max: "17,05" },
+    ],
+    competences: [
+      { matiere: "Français", items: [
+        { label: "Construire les notions permettant l'analyse et l'élaboration des textes", level: "atteints" },
+        { label: "Exploiter les principales fonctions de l'écrit", level: "partiellement" },
+        { label: "Adopter des stratégies d'écriture efficaces", level: "atteints" },
+        { label: "Contrôler sa compréhension, devenir un lecteur autonome", level: "atteints" },
+      ]},
+      { matiere: "Anglais LV1", items: [
+        { label: "Mobiliser les outils pour écrire, corriger, modifier son écrit", level: "atteints" },
+        { label: "Mettre en voix son discours", level: "atteints" },
+        { label: "Mobiliser connaissances lexicales, culturelles, grammaticales", level: "atteints" },
+        { label: "Niveau A2 — Interagir avec aisance raisonnable", level: "atteints" },
+      ]},
+      { matiere: "EPS", items: [
+        { label: "S'adapter au changement défenseur / attaquant", level: "atteints" },
+        { label: "Co‑animer une séquence de match", level: "atteints" },
+      ]},
+    ],
+  },
+};
 
-const MOYENNES_DATA = [
-  { matiere: "Français", eleve: "14,7", classe: "15,43", min: "12,7", max: "19,4" },
-  { matiere: "Mathématiques", eleve: "15,58", classe: "14,2", min: "9,75", max: "17,75" },
-  { matiere: "Anglais LV1", eleve: "17,5", classe: "13,54", min: "9,7", max: "17,5" },
-  { matiere: "EPS", eleve: "13,33", classe: "14,86", min: "11,67", max: "16,67" },
-  { matiere: "Arts Plastiques", eleve: "15", classe: "16,08", min: "10", max: "20" },
-  { matiere: "Éducation Musicale", eleve: "16,5", classe: "16,04", min: "11,5", max: "19" },
-  { matiere: "Physique-Chimie", eleve: "19,33", classe: "14,6", min: "9,22", max: "20" },
-  { matiere: "SVT", eleve: "19,67", classe: "18,39", min: "17", max: "20" },
-  { matiere: "Technologie", eleve: "18,5", classe: "18,18", min: "14,5", max: "20" },
-  { matiere: "Latin", eleve: "14,17", classe: "14,67", min: "13,83", max: "16" },
-  { matiere: "Allemand LV2", eleve: "11,88", classe: "11,98", min: "8,44", max: "17,05" },
-];
-
-const COMPETENCES_DATA = [
-  { matiere: "Français", items: [
-    { label: "Construire les notions permettant l'analyse et l'élaboration des textes", level: "atteints" },
-    { label: "Exploiter les principales fonctions de l'écrit", level: "partiellement" },
-    { label: "Adopter des stratégies d'écriture efficaces", level: "atteints" },
-    { label: "Contrôler sa compréhension, devenir un lecteur autonome", level: "atteints" },
-  ]},
-  { matiere: "Anglais LV1", items: [
-    { label: "Mobiliser les outils pour écrire, corriger, modifier son écrit", level: "atteints" },
-    { label: "Mettre en voix son discours", level: "atteints" },
-    { label: "Mobiliser connaissances lexicales, culturelles, grammaticales", level: "atteints" },
-    { label: "Niveau A2 — Interagir avec aisance raisonnable", level: "atteints" },
-  ]},
-  { matiere: "EPS", items: [
-    { label: "S'adapter au changement défenseur / attaquant", level: "atteints" },
-    { label: "Co‑animer une séquence de match", level: "atteints" },
-  ]},
-];
+function EmptyState({ label }) {
+  return (
+    <div className="empty-state">
+      <span className="empty-icon">📭</span>
+      <p>Aucune donnée disponible pour <strong>{label}</strong></p>
+    </div>
+  );
+}
 
 export default function Notes() {
-  const [activeTrimestre, setActiveTrimestre] = useState("t3");
+  const [activeTrimestre, setActiveTrimestre] = useState("r2");
   const [activeTab, setActiveTab] = useState("evaluations");
+
+  const current = DATA[activeTrimestre] || null;
+  const activeLabel = TRIMESTRES.find(t => t.id === activeTrimestre)?.label;
 
   return (
     <div className="notes-container">
@@ -83,18 +103,15 @@ export default function Notes() {
         ))}
       </div>
 
-      {/* Info conseil */}
-      <p className="conseil-info">
-        Conseil de classe de <strong>CINQUIÈME F EUROP.</strong> le vendredi 13 mars 2026 à 16:45
-      </p>
+      {current && <p className="conseil-info">{current.conseil}</p>}
 
       {/* Sous-onglets */}
       <div className="sub-tabs">
         {[
           { id: "evaluations", label: "Evaluations" },
-          { id: "moyennes", label: "Moyennes" },
+          { id: "moyennes",    label: "Moyennes" },
           { id: "competences", label: "Compétences" },
-          { id: "graphiques", label: "Graphiques" },
+          { id: "graphiques",  label: "Graphiques" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -106,8 +123,11 @@ export default function Notes() {
         ))}
       </div>
 
+      {/* Aucune donnée */}
+      {!current && <EmptyState label={activeLabel} />}
+
       {/* ÉVALUATIONS */}
-      {activeTab === "evaluations" && (
+      {current && activeTab === "evaluations" && (
         <div className="tab-content">
           <table className="notes-table">
             <thead>
@@ -118,7 +138,7 @@ export default function Notes() {
               </tr>
             </thead>
             <tbody>
-              {NOTES_DATA.map((row, i) => (
+              {current.notes.map((row, i) => (
                 <tr key={i}>
                   <td>
                     <span className="matiere-name">{row.matiere.toUpperCase()}</span>
@@ -137,13 +157,13 @@ export default function Notes() {
             </tbody>
           </table>
           <div className="moyenne-generale">
-            Moyenne générale : <strong>16,01</strong>
+            Moyenne générale : <strong>{current.moyenneGenerale}</strong>
           </div>
         </div>
       )}
 
       {/* MOYENNES */}
-      {activeTab === "moyennes" && (
+      {current && activeTab === "moyennes" && (
         <div className="tab-content">
           <table className="notes-table">
             <thead>
@@ -156,7 +176,7 @@ export default function Notes() {
               </tr>
             </thead>
             <tbody>
-              {MOYENNES_DATA.map((row, i) => (
+              {current.moyennes.map((row, i) => (
                 <tr key={i}>
                   <td><span className="matiere-name">{row.matiere.toUpperCase()}</span></td>
                   <td className="center bold">{row.eleve}</td>
@@ -169,16 +189,16 @@ export default function Notes() {
           </table>
           <div className="moyenne-box">
             <h3>Moyenne générale</h3>
-            <div className="moyenne-row"><span>Élève</span><strong>16,01</strong></div>
-            <div className="moyenne-row"><span>Classe</span><span>14,95</span></div>
-            <div className="moyenne-row"><span>Min</span><span>12,84</span></div>
-            <div className="moyenne-row"><span>Max</span><span>17,66</span></div>
+            <div className="moyenne-row"><span>Élève</span><strong>{current.moyenneGenerale}</strong></div>
+            <div className="moyenne-row"><span>Classe</span><span>{current.moyenneClasse}</span></div>
+            <div className="moyenne-row"><span>Min</span><span>{current.moyenneMin}</span></div>
+            <div className="moyenne-row"><span>Max</span><span>{current.moyenneMax}</span></div>
           </div>
         </div>
       )}
 
       {/* COMPÉTENCES */}
-      {activeTab === "competences" && (
+      {current && activeTab === "competences" && (
         <div className="tab-content">
           <table className="notes-table comp-table">
             <thead>
@@ -192,7 +212,7 @@ export default function Notes() {
               </tr>
             </thead>
             <tbody>
-              {COMPETENCES_DATA.map((groupe) =>
+              {current.competences.map((groupe) =>
                 groupe.items.map((item, j) => (
                   <tr key={`${groupe.matiere}-${j}`}>
                     {j === 0 && (
@@ -214,11 +234,11 @@ export default function Notes() {
       )}
 
       {/* GRAPHIQUES */}
-      {activeTab === "graphiques" && (
+      {current && activeTab === "graphiques" && (
         <div className="tab-content graphiques">
           <h3 style={{ marginBottom: "20px", color: "#1e3a8a" }}>Évolution des moyennes</h3>
           <div className="graph-bars">
-            {NOTES_DATA.map((row, i) => {
+            {current.notes.map((row, i) => {
               const val = parseFloat(row.moyenne.replace(",", "."));
               const pct = (val / 20) * 100;
               const color = val >= 16 ? "#22c55e" : val >= 12 ? "#3b82f6" : "#f97316";
