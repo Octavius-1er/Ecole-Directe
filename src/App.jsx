@@ -10,7 +10,7 @@ import NotesComparatives from "./pages/NotesComparatives";
 import Competences from "./pages/Competences";
 import Messagerie from "./pages/Messagerie";
 import EmploiDuTemps from "./pages/EmploiDuTemps";
-import CahierDeTextes from "./pages/CahierDeTextes";
+import CahierDeTextes from "./pages/CahierDeTexte";
 
 import "./App.css";
 
@@ -30,7 +30,7 @@ export default function App() {
             <Route path="/competences" element={<Competences />} />
             <Route path="/messagerie" element={<Messagerie />} />
             <Route path="/emploi-du-temps" element={<EmploiDuTemps />} />
-            <Route path="/cahier-de-textes" element={<CahierDeTextes />} />
+            <Route path="/cahier-de-texte" element={<CahierDeTexte />} />
           </Routes>
         </div>
 
