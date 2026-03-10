@@ -30,7 +30,7 @@ export default function App() {
             <Route path="/competences" element={<Competences />} />
             <Route path="/messagerie" element={<Messagerie />} />
             <Route path="/emploi-du-temps" element={<EmploiDuTemps />} />
-            <Route path="/cahier-de-texte" element={<CahierDeTexte />} />
+            <Route path="/cahier-de-texte" element={<CahierDeTextes />} />
           </Routes>
         </div>
 
