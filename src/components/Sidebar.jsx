@@ -5,8 +5,8 @@ import "./Sidebar.css";
 const MENU = [
   { to: "/",                icon: "⊞",  label: "Accueil" },
   { to: "/vie-scolaire",    icon: "👤", label: "Vie scolaire" },
-  { to: "/notes",           icon: "📊", label: "Notes",          badge: "18/20" },
-  { to: "/messagerie",      icon: "💬", label: "Messagerie",     badge: "44" },
+  { to: "/notes",           icon: "📊", label: "Notes",          badge: "2" },
+  { to: "/messagerie",      icon: "💬", label: "Messagerie",     badge: "3" },
   { to: "/emploi-du-temps", icon: "📅", label: "Emploi du temps" },
   { to: "/cahier-de-texte", icon: "📋", label: "Cahier de textes" },
 ];
