@@ -1,75 +1,50 @@
 import React, { useState } from "react";
+import { useAuth } from "../AuthContext";
+import { useData } from "../DataContext";
 import "./CahierDeTexte.css";
 
-const DEVOIRS = {
-  10: {
-    label: "MARDI 10 MARS",
-    items: [
-      { matiere: "MATHEMATIQUES",  effectue: true,  description: "leçon + Ex 24 et 26 p.159",                      donne: "Donné le 9 mars par Mme DAVID S." },
-      { matiere: "ALLEMAND LV2",   effectue: true,  description: "Vocabulaire p.52 — apprendre les mots",           donne: "Donné le 9 mars par Mme BOURGUIGNON A." },
-      { matiere: "HIST.GEO",       effectue: true,  description: "Bien apprendre les cours d'EMC",                  donne: "Donné le 5 mars par Mme HEMET I." },
-      { matiere: "FRANCAIS",       effectue: true,  description: "Lire Les Fourberies de Scapin de Molière\nDes comédiens viendront jouer la pièce devant les élèves", donne: "Donné le 13 février par Mme FISCHER N." },
-      { matiere: "ANGLAIS LV1",    effectue: false, description: "Vocabulary list p.48 — learn words",              donne: "Donné le 6 mars par M. GUELLEC L." },
-    ],
-  },
-  11: {
-    label: "MERCREDI 11 MARS",
-    items: [
-      { matiere: "SCIENCES VIE & TERRE", effectue: true,  description: "Evaluation flash: apprendre le tableau des 9 sens\n+ Chercher dans le dictionnaire le sens des mots \"percevoir\" et \"stimulus\".", donne: "Donné le 5 mars par Mme TLICH Z." },
-      { matiere: "FRANCAIS",             effectue: true,  description: "Choisir une scène à jouer (un personnage)", donne: "Donné le 10 mars par Mme FISCHER N." },
-    ],
-  },
-  12: {
-    label: "JEUDI 12 MARS",
-    items: [
-      { matiere: "FRANCAIS",          effectue: false, description: "Apprendre la tirade du nez (Cyrano de Bergerac)", donne: "Donné le mardi 10 mars par Mme FISCHER N." },
-      { matiere: "EDUCATION MUSICALE",effectue: true,  description: "Réviser les notes de la gamme de Do",             donne: "Donné le dimanche 8 mars par Mme CORNIER C." },
-    ],
-  },
-  13: {
-    label: "VENDREDI 13 MARS",
-    items: [
-      { matiere: "ALLEMAND LV2", effectue: false, description: "Wortschatz Seite 52 lernen", donne: "Donné le mardi 10 mars par Mme BOURGUIGNON A." },
-    ],
-  },
-};
-
-// Génère tous les jours d'un mois donné
-// month: 0-indexed, year: full year
-function buildCalendar(year, month) {
-  const firstDay = new Date(year, month, 1).getDay(); // 0=dim
-  const offset = (firstDay + 6) % 7; // lundi=0
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const daysInPrev = new Date(year, month, 0).getDate();
-  const days = [];
-  for (let i = 0; i < offset; i++)
-    days.push({ day: daysInPrev - offset + 1 + i, currentMonth: false });
-  for (let i = 1; i <= daysInMonth; i++)
-    days.push({ day: i, currentMonth: true });
-  let next = 1;
-  while (days.length < 42)
-    days.push({ day: next++, currentMonth: false });
-  return days;
-}
-
 const MONTH_NAMES = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
-const DAY_NAMES = ["lun.","mar.","mer.","jeu.","ven.","sam.","dim."];
+const DAY_NAMES = ["L","M","M","J","V","S","D"];
 
-// Jours de la semaine courante (9–14 mars)
 const WEEK_NAV = [
-  { day: 9,  label: "Lundi 9" },
-  { day: 10, label: "Mardi 10" },
-  { day: 11, label: "Mercredi 11" },
-  { day: 12, label: "Jeudi 12" },
-  { day: 13, label: "Vendredi 13" },
-  { day: 14, label: "Samedi 14" },
+  { day: 9,  label: "Lun\n9" },
+  { day: 10, label: "Mar\n10" },
+  { day: 11, label: "Mer\n11" },
+  { day: 12, label: "Jeu\n12" },
+  { day: 13, label: "Ven\n13" },
+  { day: 14, label: "Sam\n14" },
 ];
 
-export default function CahierDeTexte() {
+const MATIERES = ["Français","Mathématiques","Anglais LV1","Allemand LV2","Histoire-Géo","SVT","Physique-Chimie","Technologie","EPS","Arts Plastiques","Éducation Musicale","LCA Latin"];
+
+function buildCalendar(year, month) {
+  const firstDay = new Date(year, month, 1).getDay();
+  const offset = (firstDay === 0 ? 6 : firstDay - 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+  const cells = [];
+  for (let i = offset - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, currentMonth: false });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, currentMonth: true });
+  while (cells.length % 7 !== 0) cells.push({ day: cells.length - daysInMonth - offset + 1, currentMonth: false });
+  return cells;
+}
+
+export default function CahierDeTextes() {
+  const { user } = useAuth();
+  const { devoirs: DEVOIRS, addDevoir, removeDevoir, updateDevoirEffectue } = useData();
+  const canEdit = user?.role === "admin" || user?.role === "prof";
+
+  const [calMonth, setCalMonth] = useState(2);
   const [calYear, setCalYear]   = useState(2026);
-  const [calMonth, setCalMonth] = useState(2); // 0-indexed → mars
-  const [selected, setSelected] = useState({ day: 11, month: 2, year: 2026 });
-  const [checked, setChecked]   = useState({});
+  const [selected, setSelected] = useState({ day: 10, month: 2, year: 2026 });
+  const [showAddDevoir, setShowAddDevoir] = useState(false);
+  const [newDevoir, setNewDevoir] = useState({ matiere: "", description: "", donne: "" });
+  const [msg, setMsg] = useState("");
+
+  const isMars2026 = calMonth === 2 && calYear === 2026;
+  const calDays = buildCalendar(calYear, calMonth);
+  const dayData = selected.month === 2 && selected.year === 2026 ? DEVOIRS[selected.day] : null;
+  const dayLabel = dayData?.label || `${selected.day} ${MONTH_NAMES[selected.month]} ${selected.year}`;
 
   function prevMonth() {
     if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }
@@ -80,66 +55,90 @@ export default function CahierDeTexte() {
     else setCalMonth(m => m + 1);
   }
 
-  function toggleChecked(dayKey, idx, defaultVal) {
-    const key = `${dayKey}-${idx}`;
-    setChecked(prev => ({ ...prev, [key]: key in prev ? !prev[key] : !defaultVal }));
+  function handleAddDevoir(e) {
+    e.preventDefault();
+    if (!newDevoir.matiere || !newDevoir.description) return;
+    const label = `${["LUNDI","MARDI","MERCREDI","JEUDI","VENDREDI","SAMEDI","DIMANCHE"][new Date(selected.year, selected.month, selected.day).getDay() === 0 ? 6 : new Date(selected.year, selected.month, selected.day).getDay() - 1]} ${selected.day} ${MONTH_NAMES[selected.month].toUpperCase()}`;
+    addDevoir(selected.day, label, {
+      matiere: newDevoir.matiere.toUpperCase(),
+      description: newDevoir.description,
+      donne: newDevoir.donne || `Donné le ${selected.day} ${MONTH_NAMES[selected.month]} par ${user.prenom} ${user.nom}`,
+      effectue: false,
+    });
+    setMsg("Devoir ajouté ✓");
+    setNewDevoir({ matiere: "", description: "", donne: "" });
+    setTimeout(() => setMsg(""), 3000);
   }
-  function isChecked(dayKey, idx, defaultVal) {
-    const key = `${dayKey}-${idx}`;
-    return key in checked ? checked[key] : defaultVal;
-  }
-
-  const calDays = buildCalendar(calYear, calMonth);
-  const isMars2026 = calMonth === 2 && calYear === 2026;
-  const dayData = selected.month === 2 && selected.year === 2026 ? DEVOIRS[selected.day] : null;
-  const dayLabel = dayData?.label || `JOUR ${selected.day} ${MONTH_NAMES[selected.month].toUpperCase()} ${selected.year}`;
 
   return (
-    <div className="cdt-container">
-      <h1 className="cdt-title">
-        Cahier de textes
-        <span className="cdt-subtitle"> (OCTAVE — CINQUIÈME F EUROP.)</span>
-      </h1>
+    <div className="cdt-page">
+      <h1 className="cdt-title">Cahier de textes</h1>
 
       <div className="cdt-layout">
-
-        {/* ── Calendrier ── */}
-        <div className="cdt-left">
-          <div className="cdt-calendar">
-            <div className="cal-header">
-              <button className="cal-nav" onClick={prevMonth}>‹</button>
-              <span className="cal-month">{MONTH_NAMES[calMonth]} <strong>{calYear}</strong></span>
-              <button className="cal-nav" onClick={nextMonth}>›</button>
-            </div>
-            <div className="cal-grid">
-              {DAY_NAMES.map(d => <span key={d} className="cal-dayname">{d}</span>)}
-              {calDays.map((d, i) => (
-                <span
-                  key={i}
-                  onClick={() => d.currentMonth && setSelected({ day: d.day, month: calMonth, year: calYear })}
-                  className={[
-                    "cal-day",
-                    !d.currentMonth ? "other-month" : "",
-                    d.currentMonth && d.day === 10 && isMars2026 ? "today" : "",
-                    d.currentMonth && d.day === selected.day && calMonth === selected.month && calYear === selected.year ? "selected" : "",
-                    d.currentMonth && DEVOIRS[d.day] && isMars2026 ? "has-devoirs" : "",
-                  ].join(" ")}
-                >
-                  {d.day}
-                </span>
-              ))}
-            </div>
+        {/* ── CALENDRIER ── */}
+        <div className="cdt-calendar">
+          <div className="cal-header">
+            <button className="cal-nav" onClick={prevMonth}>‹</button>
+            <span className="cal-month">{MONTH_NAMES[calMonth]} {calYear}</span>
+            <button className="cal-nav" onClick={nextMonth}>›</button>
+          </div>
+          <div className="cal-grid">
+            {DAY_NAMES.map((d, i) => <span key={i} className="cal-dayname">{d}</span>)}
+            {calDays.map((d, i) => (
+              <span
+                key={i}
+                onClick={() => d.currentMonth && setSelected({ day: d.day, month: calMonth, year: calYear })}
+                className={[
+                  "cal-day",
+                  !d.currentMonth ? "other-month" : "",
+                  d.currentMonth && d.day === 10 && isMars2026 ? "today" : "",
+                  d.currentMonth && d.day === selected.day && calMonth === selected.month && calYear === selected.year ? "selected" : "",
+                  d.currentMonth && DEVOIRS[d.day]?.items?.length > 0 && isMars2026 ? "has-devoirs" : "",
+                ].filter(Boolean).join(" ")}
+              >
+                {d.day}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* ── Devoirs du jour ── */}
-        <div className="cdt-center">
-          <div className="cdt-toolbar">
-            <button className="cdt-tab active">Travail à faire</button>
-            <button className="cdt-print">🖨</button>
+        {/* ── DEVOIRS ── */}
+        <div className="cdt-devoirs">
+          <div className="cdt-devoirs-header">
+            <div className="cdt-tab active">Travail à faire</div>
+            {canEdit && (
+              <button className="btn-add-note" onClick={() => setShowAddDevoir(v => !v)}>
+                {showAddDevoir ? "✕ Fermer" : "➕ Ajouter un devoir"}
+              </button>
+            )}
           </div>
 
-          <h2 className="cdt-day-title">{dayLabel}</h2>
+          {/* Formulaire ajout */}
+          {canEdit && showAddDevoir && (
+            <form className="add-note-form" onSubmit={handleAddDevoir}>
+              <select value={newDevoir.matiere} onChange={e => setNewDevoir(p => ({ ...p, matiere: e.target.value }))} required>
+                <option value="">— Matière —</option>
+                {MATIERES.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <textarea
+                placeholder="Description du devoir..."
+                value={newDevoir.description}
+                onChange={e => setNewDevoir(p => ({ ...p, description: e.target.value }))}
+                rows={2}
+                required
+              />
+              <input
+                type="text"
+                placeholder={`Donné le ${selected.day} ${MONTH_NAMES[selected.month]} par ${user.prenom} ${user.nom}`}
+                value={newDevoir.donne}
+                onChange={e => setNewDevoir(p => ({ ...p, donne: e.target.value }))}
+              />
+              <button type="submit" className="btn-primary-sm">Ajouter</button>
+              {msg && <span className="add-success">{msg}</span>}
+            </form>
+          )}
+
+          <div className="cdt-day-title">{dayLabel}</div>
 
           {!dayData || dayData.items.length === 0 ? (
             <div className="cdt-empty">Aucun devoir pour ce jour.</div>
@@ -151,20 +150,24 @@ export default function CahierDeTexte() {
                     <div className="cdt-card-bar" />
                     <div className="cdt-card-title-row">
                       <span className="cdt-matiere">{item.matiere}</span>
-                      <label className="cdt-effectue">
-                        <input
-                          type="checkbox"
-                          checked={isChecked(selected.day, idx, item.effectue)}
-                          onChange={() => toggleChecked(selected.day, idx, item.effectue)}
-                        />
-                        <span>Effectué</span>
-                      </label>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <label className="cdt-effectue">
+                          <input
+                            type="checkbox"
+                            checked={item.effectue}
+                            onChange={e => updateDevoirEffectue(selected.day, idx, e.target.checked)}
+                          />
+                          <span>Effectué</span>
+                        </label>
+                        {canEdit && (
+                          <button className="eval-del" style={{ background: "#fee2e2", color: "#dc2626", borderRadius: 6, padding: "3px 8px", border: "none", cursor: "pointer", fontSize: 12 }}
+                            onClick={() => removeDevoir(selected.day, idx)}>✕ Supprimer</button>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="cdt-card-body">
-                    {item.description.split("\n").map((line, l) => (
-                      <p key={l} className="cdt-desc">{line}</p>
-                    ))}
+                    {item.description.split("\n").map((line, l) => <p key={l} className="cdt-desc">{line}</p>)}
                     <p className="cdt-donne">{item.donne}</p>
                   </div>
                 </div>
@@ -173,27 +176,22 @@ export default function CahierDeTexte() {
           )}
         </div>
 
-        {/* ── Nav verticale droite ── */}
-        <div className="cdt-weeknav">
-          <button className="cdt-nav-arrow">▲</button>
+        {/* ── NAV SEMAINE ── */}
+        <div className="cdt-week-nav">
+          <button className="cdt-nav-arrow" onClick={() => {}}>▲</button>
+          <div className="cdt-nav-label">À venir</div>
           {WEEK_NAV.map(w => (
             <button
               key={w.day}
               onClick={() => { setSelected({ day: w.day, month: 2, year: 2026 }); setCalMonth(2); setCalYear(2026); }}
-              className={[
-                "cdt-nav-day",
-                selected.day === w.day && selected.month === 2 && selected.year === 2026 ? "active" : "",
-                DEVOIRS[w.day]?.items.length > 0 ? "has-items" : "",
-              ].join(" ")}
+              className={["cdt-nav-day", selected.day === w.day && selected.month === 2 && selected.year === 2026 ? "active" : "", DEVOIRS[w.day]?.items?.length > 0 ? "has-items" : ""].filter(Boolean).join(" ")}
             >
-              {w.label}
+              {w.label.split("\n").map((l, i) => <span key={i}>{l}</span>)}
             </button>
           ))}
-          <button className="cdt-nav-arrow">▼</button>
-          <button className="cdt-nav-label">À venir</button>
-          <button className="cdt-nav-label">Devoirs de la semaine</button>
+          <div className="cdt-nav-label">Devoirs</div>
+          <button className="cdt-nav-arrow" onClick={() => {}}>▼</button>
         </div>
-
       </div>
     </div>
   );
