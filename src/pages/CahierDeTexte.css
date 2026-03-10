@@ -1,14 +1,8 @@
 .cdt-container { padding: 20px 10px 20px 20px; }
 
-.cdt-title {
-  font-size: 22px;
-  color: #1a4fa0;
-  margin-bottom: 20px;
-  font-weight: 600;
-}
+.cdt-title { font-size: 22px; color: #1a4fa0; margin-bottom: 20px; font-weight: 600; }
 .cdt-subtitle { font-size: 15px; font-weight: 400; color: #555; }
 
-/* ── Layout ── */
 .cdt-layout {
   display: grid;
   grid-template-columns: 260px 1fr 52px;
@@ -17,184 +11,99 @@
 }
 
 /* ── Calendrier ── */
-.cdt-calendar {
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
-  overflow: hidden;
-}
+.cdt-calendar { background: white; border-radius: 4px; box-shadow: 0 1px 6px rgba(0,0,0,0.1); overflow: hidden; }
 
-.cal-header {
-  background: #1a4fa0;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-}
+.cal-header { background: #1a4fa0; color: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; }
 .cal-month { font-size: 15px; }
-.cal-nav {
-  background: none; border: none; color: white;
-  font-size: 20px; cursor: pointer; padding: 0 6px; opacity: 0.85;
-}
+.cal-nav { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 6px; opacity: 0.85; }
 .cal-nav:hover { opacity: 1; }
 
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  padding: 10px 8px;
-  gap: 2px;
-}
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); padding: 10px 8px; gap: 2px; }
 
-.cal-dayname {
-  text-align: center; font-size: 12px;
-  font-weight: 600; color: #1a4fa0; padding: 4px 0;
-}
+.cal-dayname { text-align: center; font-size: 12px; font-weight: 600; color: #1a4fa0; padding: 4px 0; }
 
 .cal-day {
   text-align: center; font-size: 13px; padding: 5px 2px;
   border-radius: 50%; color: #333; aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s; cursor: default;
+  transition: background 0.15s; cursor: pointer;
 }
-.cal-day.has-devoirs { cursor: pointer; }
-.cal-day.has-devoirs:hover { background: #e3f0ff; }
+.cal-day:hover { background: #e3f0ff; }
 .cal-day.other-month { color: #ccc; }
 .cal-day.today { color: #1a4fa0; font-weight: 700; }
 .cal-day.selected { background: #1a4fa0 !important; color: white; font-weight: 700; }
+.cal-day.has-devoirs { font-weight: 600; color: #1a4fa0; }
 
 /* ── Centre ── */
 .cdt-center { min-width: 0; }
 
-.cdt-toolbar {
-  display: flex; align-items: center;
-  justify-content: space-between; margin-bottom: 16px;
-}
-.cdt-tabs { display: flex; }
+.cdt-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+
 .cdt-tab {
-  padding: 7px 18px; border: 1px solid #ccc;
-  background: #f0f0f0; color: #666; font-size: 13px;
-  font-weight: 500; cursor: pointer; transition: 0.15s;
+  padding: 7px 18px; border: 1px solid #bbb;
+  background: white; color: #333; font-size: 13px;
+  font-weight: 600; cursor: pointer; border-radius: 4px;
+  font-family: 'Outfit', sans-serif;
 }
-.cdt-tab:first-child { border-radius: 4px 0 0 4px; }
-.cdt-tab:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
-.cdt-tab.active { background: white; color: #333; font-weight: 600; border-color: #bbb; }
+
 .cdt-print { background: none; border: none; font-size: 20px; cursor: pointer; color: #555; }
 
-.cdt-day-title {
-  text-align: center; font-size: 17px; font-weight: 700;
-  color: #333; margin-bottom: 16px; letter-spacing: 0.04em;
-}
+.cdt-day-title { text-align: center; font-size: 17px; font-weight: 700; color: #333; margin-bottom: 16px; letter-spacing: 0.04em; }
 
 /* ── Cards ── */
 .cdt-cards { display: flex; flex-direction: column; gap: 14px; }
 
 .cdt-card {
-  background: white;
-  border: 1px solid #dce6f0;
-  border-radius: 4px;
-  overflow: hidden;
+  background: white; border: 1px solid #dce6f0;
+  border-radius: 4px; overflow: hidden;
   animation: fadeUp 0.25s ease both;
 }
 
-/* Ligne matière + effectué */
-.cdt-card-head {
-  display: flex;
-  align-items: stretch;
-  border-bottom: 1px solid #eef3f8;
-}
-
-.cdt-card-bar {
-  width: 5px;
-  background: #1a7ac7;
-  flex-shrink: 0;
-}
+.cdt-card-head { display: flex; align-items: stretch; border-bottom: 1px solid #eef3f8; }
+.cdt-card-bar { width: 5px; background: #1a7ac7; flex-shrink: 0; }
 
 .cdt-card-title-row {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
+  flex: 1; display: flex; align-items: center;
+  justify-content: space-between; padding: 12px 16px;
 }
 
-.cdt-matiere {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a7ac7;
-  letter-spacing: 0.03em;
-}
+.cdt-matiere { font-size: 15px; font-weight: 700; color: #1a7ac7; letter-spacing: 0.03em; }
 
-.cdt-effectue {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  cursor: pointer;
-}
-.cdt-effectue input[type="checkbox"] {
-  accent-color: #1a7ac7;
-  width: 15px; height: 15px; cursor: pointer;
-}
+.cdt-effectue { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #333; cursor: pointer; }
+.cdt-effectue input[type="checkbox"] { accent-color: #1a7ac7; width: 15px; height: 15px; cursor: pointer; }
 
-/* Corps */
 .cdt-card-body { padding: 12px 16px 16px 21px; }
+.cdt-desc { font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 4px; }
+.cdt-donne { font-style: italic; color: #999; font-size: 13px; margin-top: 12px; text-align: right; }
 
-.cdt-desc {
-  font-size: 14px; color: #333;
-  line-height: 1.6; margin-bottom: 4px;
-}
-
-.cdt-donne {
-  font-style: italic; color: #999;
-  font-size: 13px; margin-top: 12px;
-  text-align: right;
-}
-
-.cdt-empty {
-  text-align: center; padding: 60px 20px;
-  color: #aaa; font-size: 15px; font-style: italic;
-}
+.cdt-empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 15px; font-style: italic; }
 
 /* ── Nav verticale droite ── */
-.cdt-weeknav {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 3px;
-  position: sticky; top: 20px;
-}
+.cdt-weeknav { display: flex; flex-direction: column; align-items: center; gap: 3px; position: sticky; top: 20px; }
 
 .cdt-nav-arrow {
   background: #1a4fa0; color: white; border: none;
   border-radius: 50%; width: 26px; height: 26px;
   font-size: 13px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  margin: 2px 0;
 }
-.cdt-nav-arrow.up { margin-bottom: 4px; }
-.cdt-nav-arrow.down { margin-top: 4px; margin-bottom: 4px; }
 
 .cdt-nav-day {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  background: #eaf1fb;
-  border: none; color: #777;
+  writing-mode: vertical-rl; text-orientation: mixed;
+  background: #eaf1fb; border: none; color: #777;
   font-size: 12px; font-family: 'Outfit', sans-serif;
-  padding: 10px 7px; cursor: pointer;
-  border-radius: 3px; transition: 0.15s;
-  white-space: nowrap;
+  padding: 10px 7px; cursor: pointer; border-radius: 3px;
+  transition: 0.15s; white-space: nowrap;
 }
 .cdt-nav-day:hover { background: #d0e4f7; color: #1a4fa0; }
 .cdt-nav-day.active { background: #1a4fa0; color: white; font-weight: 700; }
-.cdt-nav-day.has-items { color: #1a4fa0; }
+.cdt-nav-day.has-items { color: #1a4fa0; font-weight: 600; }
 .cdt-nav-day.active.has-items { color: white; }
 
 .cdt-nav-label {
-  writing-mode: vertical-rl;
-  background: none; border: none;
-  color: #1a7ac7; font-size: 11px;
-  font-family: 'Outfit', sans-serif;
-  padding: 8px 4px; cursor: pointer;
-  white-space: nowrap; margin-top: 2px;
+  writing-mode: vertical-rl; background: none; border: none;
+  color: #1a7ac7; font-size: 11px; font-family: 'Outfit', sans-serif;
+  padding: 8px 4px; cursor: pointer; white-space: nowrap; margin-top: 2px;
 }
 .cdt-nav-label:hover { text-decoration: underline; }
