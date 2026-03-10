@@ -7,6 +7,34 @@
   margin-bottom: 20px;
 }
 
+/* Tabs */
+.notes-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tab {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #e2e8f0;
+  color: #555;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.tab:hover {
+  background: #cbd5e1;
+}
+
+.tab.active {
+  background: #1e3a8a;
+  color: white;
+}
+
+/* Tables */
 .notes-table {
   width: 100%;
   border-collapse: collapse;
@@ -24,6 +52,23 @@
   font-weight: bold;
 }
 
+/* Compétences */
+.comp-table td {
+  text-align: center;
+  height: 45px;
+}
+
+.comp-table td:first-child {
+  text-align: left;
+}
+
+.matiere {
+  font-weight: bold;
+  background: #fafafa;
+  text-align: center !important;
+}
+
+/* Moyenne générale */
 .moyenne-generale {
   background: #ffffff;
   padding: 20px;
@@ -32,4 +77,12 @@
   text-align: center;
   font-size: 20px;
   font-weight: bold;
+}
+
+.moyenne-box {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  width: 300px;
 }
