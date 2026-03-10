@@ -1,205 +1,114 @@
 import React, { useState } from "react";
+import { useAuth } from "../AuthContext";
+import { useData } from "../DataContext";
 import "./Notes.css";
 
 const TRIMESTRES = [
-  {
-    id: "t1", label: "1er Trimestre",
-    releves: [
-      { id: "r1", label: "Relevé 1" },
-      { id: "r2", label: "Relevé 2" },
-    ],
-  },
-  {
-    id: "t2", label: "2ème Trimestre",
-    releves: [
-      { id: "r3", label: "Relevé 3" },
-      { id: "r4", label: "Relevé 4" },
-    ],
-  },
-  {
-    id: "t3", label: "3ème Trimestre",
-    releves: [
-      { id: "r5", label: "Relevé 5" },
-      { id: "r6", label: "Relevé 6" },
-    ],
-  },
-  {
-    id: "annee", label: "Année",
-    releves: [],
-  },
+  { id: "t1", label: "1er Trimestre", releves: [{ id: "r1", label: "Relevé 1" }, { id: "r2", label: "Relevé 2" }] },
+  { id: "t2", label: "2ème Trimestre", releves: [{ id: "r3", label: "Relevé 3" }, { id: "r4", label: "Relevé 4" }] },
+  { id: "t3", label: "3ème Trimestre", releves: [{ id: "r5", label: "Relevé 5" }, { id: "r6", label: "Relevé 6" }] },
+  { id: "annee", label: "Année", releves: [] },
 ];
 
-// Seul le Relevé 2 (2ème relevé du 1er trimestre) a des données pour l'instant
-const DATA = {
-  r2: {
-    conseil: "Conseil de classe de CINQUIÈME F EUROP. le vendredi 13 mars 2026 à 16:45",
-    moyenneGenerale: "16,01",
-    moyenneClasse: "14,95",
-    moyenneMin: "12,84",
-    moyenneMax: "17,66",
-    notes: [
-      { matiere: "Français",            prof: "Mme Fischer N.",     moyenne: "14,7",  evals: ["6,5/10", "15", "15", "13,5", "17"] },
-      { matiere: "Mathématiques",       prof: "Mme David S.",       moyenne: "15,58", evals: ["17", "18,5", "8,5/10", "12", "13"] },
-      { matiere: "Anglais LV1",         prof: "M. Guellec L.",      moyenne: "17,5",  evals: ["16", "8/10", "18,5", "15", "20"] },
-      { matiere: "Éducation Physique",  prof: "M. Chapelot B.",     moyenne: "13,33", evals: ["12,5", "15"] },
-      { matiere: "Arts Plastiques",     prof: "Mme Decroix C.",     moyenne: "15",    evals: ["15", "16"] },
-      { matiere: "Éducation Musicale",  prof: "Mme Cornier C.",     moyenne: "16,5",  evals: ["4,5/5", "15"] },
-      { matiere: "Physique-Chimie",     prof: "Mme Bredel M.",      moyenne: "19,33", evals: ["19", "15/15", "14,75"] },
-      { matiere: "Sciences Vie & Terre",prof: "Mme Tlich Z.",       moyenne: "11,5",  evals: ["11,5", "7/10", "9/10"] },
-      { matiere: "Technologie",         prof: "M. Olivares D.",     moyenne: "19,67", evals: ["20", "20"] },
-      { matiere: "LCA Latin",           prof: "Mme Langlois S.",    moyenne: "18,5",  evals: ["7/10", "9/10"] },
-      { matiere: "Allemand LV2",        prof: "Mme Bourguignon A.", moyenne: "14,17", evals: ["10,5", "16", "8,5/10", "18,5", "5/5"] },
-      { matiere: "Histoire-Géo",        prof: "Mme Hemet I.",       moyenne: "11,88", evals: ["Abs", "7/10", "12,25", "5,75/10", "13,75", "8"] },
-    ],
-    moyennes: [
-      { matiere: "Français",            eleve: "14,7",  classe: "15,43", min: "12,7",  max: "19,4" },
-      { matiere: "Mathématiques",       eleve: "15,58", classe: "14,2",  min: "9,75",  max: "17,75" },
-      { matiere: "Anglais LV1",         eleve: "17,5",  classe: "13,54", min: "9,7",   max: "17,5" },
-      { matiere: "EPS",                 eleve: "13,33", classe: "14,86", min: "11,67", max: "16,67" },
-      { matiere: "Arts Plastiques",     eleve: "15",    classe: "16,08", min: "10",    max: "20" },
-      { matiere: "Éducation Musicale",  eleve: "16,5",  classe: "16,04", min: "11,5",  max: "19" },
-      { matiere: "Physique-Chimie",     eleve: "19,33", classe: "14,6",  min: "9,22",  max: "20" },
-      { matiere: "SVT",                 eleve: "19,67", classe: "18,39", min: "17",    max: "20" },
-      { matiere: "Technologie",         eleve: "18,5",  classe: "18,18", min: "14,5",  max: "20" },
-      { matiere: "Latin",               eleve: "14,17", classe: "14,67", min: "13,83", max: "16" },
-      { matiere: "Allemand LV2",        eleve: "11,88", classe: "11,98", min: "8,44",  max: "17,05" },
-    ],
-    competences: [
-      { matiere: "Français", items: [
-        { label: "Construire les notions permettant l'analyse et l'élaboration des textes", level: "atteints" },
-        { label: "Exploiter les principales fonctions de l'écrit", level: "partiellement" },
-        { label: "Adopter des stratégies d'écriture efficaces", level: "atteints" },
-        { label: "Contrôler sa compréhension, devenir un lecteur autonome", level: "atteints" },
-      ]},
-      { matiere: "Anglais LV1", items: [
-        { label: "Mobiliser les outils pour écrire, corriger, modifier son écrit", level: "atteints" },
-        { label: "Mettre en voix son discours", level: "atteints" },
-        { label: "Mobiliser connaissances lexicales, culturelles, grammaticales", level: "atteints" },
-        { label: "Niveau A2 — Interagir avec aisance raisonnable", level: "atteints" },
-      ]},
-      { matiere: "EPS", items: [
-        { label: "S'adapter au changement défenseur / attaquant", level: "atteints" },
-        { label: "Co‑animer une séquence de match", level: "atteints" },
-      ]},
-    ],
-  },
-};
-
-function computeAnnee() {
-  const allReleves = Object.values(DATA);
-  if (allReleves.length === 0) return null;
-
-  // Regroupe toutes les matières et calcule la moyenne des moyennes
+function computeAnnee(data) {
+  const allReleves = Object.values(data);
+  if (!allReleves.length) return null;
   const matiereMap = {};
-  allReleves.forEach(releve => {
-    releve.notes.forEach(n => {
-      const key = n.matiere;
-      if (!matiereMap[key]) matiereMap[key] = { matiere: key, prof: n.prof, sum: 0, count: 0, evals: [] };
-      matiereMap[key].sum += parseFloat(n.moyenne.replace(",", "."));
-      matiereMap[key].count += 1;
-      matiereMap[key].evals.push(...n.evals);
-    });
-  });
-
-  const notes = Object.values(matiereMap).map(m => ({
-    matiere: m.matiere,
-    prof: m.prof,
-    moyenne: (m.sum / m.count).toFixed(2).replace(".", ","),
-    evals: m.evals,
+  allReleves.forEach(r => r.notes.forEach(n => {
+    if (!matiereMap[n.matiere]) matiereMap[n.matiere] = { matiere: n.matiere, prof: n.prof, sum: 0, count: 0, evals: [] };
+    matiereMap[n.matiere].sum += parseFloat(n.moyenne.replace(",", ".")) || 0;
+    matiereMap[n.matiere].count += 1;
+    matiereMap[n.matiere].evals.push(...n.evals);
   }));
-
-  const moyenneGenerale = (notes.reduce((s, n) => s + parseFloat(n.moyenne.replace(",", ".")), 0) / notes.length).toFixed(2).replace(".", ",");
-
-  return {
-    conseil: "Moyenne annuelle calculée sur tous les relevés disponibles",
-    moyenneGenerale,
-    moyenneClasse: "—",
-    moyenneMin: "—",
-    moyenneMax: "—",
-    notes,
-    moyennes: notes.map(n => ({ matiere: n.matiere, eleve: n.moyenne, classe: "—", min: "—", max: "—" })),
-    competences: allReleves[0]?.competences || [],
-  };
+  const notes = Object.values(matiereMap).map(m => ({
+    matiere: m.matiere, prof: m.prof, evals: m.evals,
+    moyenne: (m.sum / m.count).toFixed(2).replace(".", ","),
+  }));
+  const mg = (notes.reduce((s, n) => s + parseFloat(n.moyenne.replace(",", ".")), 0) / notes.length).toFixed(2).replace(".", ",");
+  return { conseil: "Moyenne annuelle — tous relevés confondus", moyenneGenerale: mg, moyenneClasse: "—", moyenneMin: "—", moyenneMax: "—", notes, moyennes: notes.map(n => ({ matiere: n.matiere, eleve: n.moyenne, classe: "—", min: "—", max: "—" })), competences: allReleves[0]?.competences || [] };
 }
 
 function EmptyState({ label }) {
-  return (
-    <div className="empty-state">
-      <span className="empty-icon">📭</span>
-      <p>Aucune donnée disponible pour <strong>{label}</strong></p>
-    </div>
-  );
+  return <div className="empty-state"><span className="empty-icon">📭</span><p>Aucune donnée pour <strong>{label}</strong></p></div>;
 }
 
 export default function Notes() {
+  const { user } = useAuth();
+  const { notes: DATA, addNote, removeNote } = useData();
+  const canEdit = user?.role === "admin" || user?.role === "prof";
+
   const [activeTrimestre, setActiveTrimestre] = useState("t1");
   const [activeReleve, setActiveReleve] = useState("r2");
   const [activeTab, setActiveTab] = useState("evaluations");
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [newNote, setNewNote] = useState({ matiere: "", valeur: "" });
+  const [msg, setMsg] = useState("");
 
   const trimestre = TRIMESTRES.find(t => t.id === activeTrimestre);
   const isAnnee = activeTrimestre === "annee";
   const currentId = trimestre?.releves.length > 0 ? activeReleve : activeTrimestre;
-  const current = isAnnee ? computeAnnee() : (DATA[currentId] || null);
+  const current = isAnnee ? computeAnnee(DATA) : (DATA[currentId] || null);
   const activeLabel = isAnnee ? "Année" : (trimestre?.releves.find(r => r.id === activeReleve)?.label || trimestre?.label);
+
+  function handleAddNote(e) {
+    e.preventDefault();
+    if (!newNote.matiere || !newNote.valeur) return;
+    addNote(currentId, newNote.matiere, newNote.valeur);
+    setMsg(`Note ${newNote.valeur} ajoutée en ${newNote.matiere} ✓`);
+    setNewNote({ matiere: "", valeur: "" });
+    setTimeout(() => setMsg(""), 3000);
+  }
 
   function handleTrimestreChange(t) {
     setActiveTrimestre(t.id);
-    if (t.releves.length > 0) {
-      setActiveReleve(t.releves[0].id);
-    }
+    if (t.releves.length > 0) setActiveReleve(t.releves[0].id);
   }
 
   return (
     <div className="notes-container">
       <h1 className="notes-title">Notes et Moyennes</h1>
 
-      {/* Niveau 1 : Trimestres */}
       <div className="trimestre-tabs">
-        {TRIMESTRES.map((t) => (
-          <button
-            key={t.id}
-            className={`trimestre-tab ${activeTrimestre === t.id ? "active" : ""}`}
-            onClick={() => handleTrimestreChange(t)}
-          >
-            {t.label}
-          </button>
+        {TRIMESTRES.map(t => (
+          <button key={t.id} className={`trimestre-tab ${activeTrimestre === t.id ? "active" : ""}`} onClick={() => handleTrimestreChange(t)}>{t.label}</button>
         ))}
       </div>
 
-      {/* Niveau 2 : Relevés du trimestre sélectionné */}
       {trimestre?.releves.length > 0 && (
         <div className="releve-tabs">
-          {trimestre.releves.map((r) => (
-            <button
-              key={r.id}
-              className={`releve-tab ${activeReleve === r.id ? "active" : ""}`}
-              onClick={() => setActiveReleve(r.id)}
-            >
-              {r.label}
-            </button>
+          {trimestre.releves.map(r => (
+            <button key={r.id} className={`releve-tab ${activeReleve === r.id ? "active" : ""}`} onClick={() => setActiveReleve(r.id)}>{r.label}</button>
           ))}
         </div>
       )}
 
       {current && <p className="conseil-info">{current.conseil}</p>}
 
-      {/* Sous-onglets */}
-      <div className="sub-tabs">
-        {[
-          { id: "evaluations", label: "Evaluations" },
-          { id: "moyennes",    label: "Moyennes" },
-          { id: "competences", label: "Compétences" },
-          { id: "graphiques",  label: "Graphiques" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            className={`sub-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
+      <div className="notes-topbar">
+        <div className="sub-tabs">
+          {[{ id: "evaluations", label: "Evaluations" }, { id: "moyennes", label: "Moyennes" }, { id: "competences", label: "Compétences" }, { id: "graphiques", label: "Graphiques" }].map(tab => (
+            <button key={tab.id} className={`sub-tab ${activeTab === tab.id ? "active" : ""}`} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>
+          ))}
+        </div>
+        {canEdit && !isAnnee && current && (
+          <button className="btn-add-note" onClick={() => setShowAddNote(v => !v)}>
+            {showAddNote ? "✕ Fermer" : "➕ Ajouter une note"}
           </button>
-        ))}
+        )}
       </div>
+
+      {/* Formulaire ajout note */}
+      {canEdit && showAddNote && !isAnnee && current && (
+        <form className="add-note-form" onSubmit={handleAddNote}>
+          <select value={newNote.matiere} onChange={e => setNewNote(p => ({ ...p, matiere: e.target.value }))} required>
+            <option value="">— Choisir la matière —</option>
+            {current.notes.map(n => <option key={n.matiere} value={n.matiere}>{n.matiere}</option>)}
+          </select>
+          <input type="text" placeholder="Note (ex: 15 ou 8/10)" value={newNote.valeur} onChange={e => setNewNote(p => ({ ...p, valeur: e.target.value }))} required />
+          <button type="submit" className="btn-primary-sm">Ajouter</button>
+          {msg && <span className="add-success">{msg}</span>}
+        </form>
+      )}
 
       {!current && <EmptyState label={activeLabel} />}
 
@@ -207,35 +116,30 @@ export default function Notes() {
       {current && activeTab === "evaluations" && (
         <div className="tab-content">
           <table className="notes-table">
-            <thead>
-              <tr>
-                <th>Disciplines</th>
-                <th>Moyennes</th>
-                <th>Évaluations</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Disciplines</th><th>Moyennes</th><th>Évaluations</th>{canEdit && !isAnnee && <th>Actions</th>}</tr></thead>
             <tbody>
               {current.notes.map((row, i) => (
                 <tr key={i}>
-                  <td>
-                    <span className="matiere-name">{row.matiere.toUpperCase()}</span>
-                    <span className="prof-name">{row.prof}</span>
-                  </td>
+                  <td><span className="matiere-name">{row.matiere.toUpperCase()}</span><span className="prof-name">{row.prof}</span></td>
                   <td className="center bold">{row.moyenne}</td>
                   <td>
                     <div className="evals-cell">
                       {row.evals.map((e, j) => (
-                        <span key={j} className="eval-pill">{e}</span>
+                        <span key={j} className="eval-pill">
+                          {e}
+                          {canEdit && !isAnnee && (
+                            <button className="eval-del" onClick={() => removeNote(currentId, row.matiere, j)} title="Supprimer">×</button>
+                          )}
+                        </span>
                       ))}
                     </div>
                   </td>
+                  {canEdit && !isAnnee && <td></td>}
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="moyenne-generale">
-            Moyenne générale : <strong>{current.moyenneGenerale}</strong>
-          </div>
+          <div className="moyenne-generale">Moyenne générale : <strong>{current.moyenneGenerale}</strong></div>
         </div>
       )}
 
@@ -243,15 +147,7 @@ export default function Notes() {
       {current && activeTab === "moyennes" && (
         <div className="tab-content">
           <table className="notes-table">
-            <thead>
-              <tr>
-                <th>Discipline</th>
-                <th>Élève</th>
-                <th>Classe</th>
-                <th>Min</th>
-                <th>Max</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Discipline</th><th>Élève</th><th>Classe</th><th>Min</th><th>Max</th></tr></thead>
             <tbody>
               {current.moyennes.map((row, i) => (
                 <tr key={i}>
@@ -278,33 +174,18 @@ export default function Notes() {
       {current && activeTab === "competences" && (
         <div className="tab-content">
           <table className="notes-table comp-table">
-            <thead>
-              <tr>
-                <th>Discipline</th>
-                <th>Éléments de programme</th>
-                <th>Non atteints</th>
-                <th>Part. atteints</th>
-                <th>Atteints</th>
-                <th>Dépassés</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Discipline</th><th>Éléments de programme</th><th>Non atteints</th><th>Part. atteints</th><th>Atteints</th><th>Dépassés</th></tr></thead>
             <tbody>
-              {current.competences.map((groupe) =>
-                groupe.items.map((item, j) => (
-                  <tr key={`${groupe.matiere}-${j}`}>
-                    {j === 0 && (
-                      <td rowSpan={groupe.items.length} className="matiere-cell">
-                        {groupe.matiere.toUpperCase()}
-                      </td>
-                    )}
-                    <td>{item.label}</td>
-                    <td className="center">{item.level === "non" ? "●" : ""}</td>
-                    <td className="center">{item.level === "partiellement" ? "●" : ""}</td>
-                    <td className="center">{item.level === "atteints" ? "●" : ""}</td>
-                    <td className="center">{item.level === "depasses" ? "●" : ""}</td>
-                  </tr>
-                ))
-              )}
+              {current.competences.map(groupe => groupe.items.map((item, j) => (
+                <tr key={`${groupe.matiere}-${j}`}>
+                  {j === 0 && <td rowSpan={groupe.items.length} className="matiere-cell">{groupe.matiere.toUpperCase()}</td>}
+                  <td>{item.label}</td>
+                  <td className="center">{item.level === "non" ? "●" : ""}</td>
+                  <td className="center">{item.level === "partiellement" ? "●" : ""}</td>
+                  <td className="center">{item.level === "atteints" ? "●" : ""}</td>
+                  <td className="center">{item.level === "depasses" ? "●" : ""}</td>
+                </tr>
+              )))}
             </tbody>
           </table>
         </div>
@@ -322,12 +203,7 @@ export default function Notes() {
               return (
                 <div key={i} className="graph-row">
                   <span className="graph-label">{row.matiere}</span>
-                  <div className="graph-bar-bg">
-                    <div
-                      className="graph-bar-fill bar-grow"
-                      style={{ width: `${pct}%`, background: color, animationDelay: `${i * 0.06}s` }}
-                    />
-                  </div>
+                  <div className="graph-bar-bg"><div className="graph-bar-fill bar-grow" style={{ width: `${pct}%`, background: color, animationDelay: `${i * 0.06}s` }} /></div>
                   <span className="graph-value">{row.moyenne}</span>
                 </div>
               );
