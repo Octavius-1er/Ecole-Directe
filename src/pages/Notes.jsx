@@ -2,19 +2,34 @@ import React, { useState } from "react";
 import "./Notes.css";
 
 const TRIMESTRES = [
-  { id: "t1",    label: "1er Trimestre" },
-  { id: "r1",    label: "Relevé 1" },
-  { id: "r2",    label: "Relevé 2" },
-  { id: "t2",    label: "2ème Trimestre" },
-  { id: "r3",    label: "Relevé" },
-  { id: "r4",    label: "Relevé" },
-  { id: "t3",    label: "3ème Trimestre" },
-  { id: "r5",    label: "Relevé" },
-  { id: "r6",    label: "Relevé" },
-  { id: "annee", label: "Année" },
+  {
+    id: "t1", label: "1er Trimestre",
+    releves: [
+      { id: "r1", label: "Relevé 1" },
+      { id: "r2", label: "Relevé 2" },
+    ],
+  },
+  {
+    id: "t2", label: "2ème Trimestre",
+    releves: [
+      { id: "r3", label: "Relevé 3" },
+      { id: "r4", label: "Relevé 4" },
+    ],
+  },
+  {
+    id: "t3", label: "3ème Trimestre",
+    releves: [
+      { id: "r5", label: "Relevé 5" },
+      { id: "r6", label: "Relevé 6" },
+    ],
+  },
+  {
+    id: "annee", label: "Année",
+    releves: [],
+  },
 ];
 
-// Seul le Relevé 2 du 2ème trimestre a des données pour l'instant
+// Seul le Relevé 2 (2ème relevé du 1er trimestre) a des données pour l'instant
 const DATA = {
   r2: {
     conseil: "Conseil de classe de CINQUIÈME F EUROP. le vendredi 13 mars 2026 à 16:45",
@@ -80,28 +95,53 @@ function EmptyState({ label }) {
 }
 
 export default function Notes() {
-  const [activeTrimestre, setActiveTrimestre] = useState("r2");
+  const [activeTrimestre, setActiveTrimestre] = useState("t1");
+  const [activeReleve, setActiveReleve] = useState("r2");
   const [activeTab, setActiveTab] = useState("evaluations");
 
-  const current = DATA[activeTrimestre] || null;
-  const activeLabel = TRIMESTRES.find(t => t.id === activeTrimestre)?.label;
+  const trimestre = TRIMESTRES.find(t => t.id === activeTrimestre);
+  const currentId = trimestre?.releves.length > 0 ? activeReleve : activeTrimestre;
+  const current = DATA[currentId] || null;
+  const activeLabel = trimestre?.releves.find(r => r.id === activeReleve)?.label || trimestre?.label;
+
+  function handleTrimestreChange(t) {
+    setActiveTrimestre(t.id);
+    if (t.releves.length > 0) {
+      setActiveReleve(t.releves[0].id);
+    }
+  }
 
   return (
     <div className="notes-container">
       <h1 className="notes-title">Notes et Moyennes</h1>
 
-      {/* Onglets trimestres */}
+      {/* Niveau 1 : Trimestres */}
       <div className="trimestre-tabs">
         {TRIMESTRES.map((t) => (
           <button
             key={t.id}
             className={`trimestre-tab ${activeTrimestre === t.id ? "active" : ""}`}
-            onClick={() => setActiveTrimestre(t.id)}
+            onClick={() => handleTrimestreChange(t)}
           >
             {t.label}
           </button>
         ))}
       </div>
+
+      {/* Niveau 2 : Relevés du trimestre sélectionné */}
+      {trimestre?.releves.length > 0 && (
+        <div className="releve-tabs">
+          {trimestre.releves.map((r) => (
+            <button
+              key={r.id}
+              className={`releve-tab ${activeReleve === r.id ? "active" : ""}`}
+              onClick={() => setActiveReleve(r.id)}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {current && <p className="conseil-info">{current.conseil}</p>}
 
@@ -123,7 +163,6 @@ export default function Notes() {
         ))}
       </div>
 
-      {/* Aucune donnée */}
       {!current && <EmptyState label={activeLabel} />}
 
       {/* ÉVALUATIONS */}
