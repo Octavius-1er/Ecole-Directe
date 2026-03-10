@@ -68,7 +68,7 @@ const WEEK_NAV = [
 export default function CahierDeTexte() {
   const [calYear, setCalYear]   = useState(2026);
   const [calMonth, setCalMonth] = useState(2); // 0-indexed → mars
-  const [selectedDay, setSelectedDay] = useState(11);
+  const [selected, setSelected] = useState({ day: 11, month: 2, year: 2026 });
   const [checked, setChecked]   = useState({});
 
   function prevMonth() {
@@ -90,8 +90,9 @@ export default function CahierDeTexte() {
   }
 
   const calDays = buildCalendar(calYear, calMonth);
-  const dayData = DEVOIRS[selectedDay];
-  const dayLabel = dayData?.label || `JOUR ${selectedDay} MARS`;
+  const isMars2026 = calMonth === 2 && calYear === 2026;
+  const dayData = selected.month === 2 && selected.year === 2026 ? DEVOIRS[selected.day] : null;
+  const dayLabel = dayData?.label || `JOUR ${selected.day} ${MONTH_NAMES[selected.month].toUpperCase()} ${selected.year}`;
 
   return (
     <div className="cdt-container">
@@ -115,13 +116,13 @@ export default function CahierDeTexte() {
               {calDays.map((d, i) => (
                 <span
                   key={i}
-                  onClick={() => d.currentMonth && setSelectedDay(d.day)}
+                  onClick={() => d.currentMonth && setSelected({ day: d.day, month: calMonth, year: calYear })}
                   className={[
                     "cal-day",
-                    !d.currentMonth          ? "other-month" : "",
-                    d.currentMonth && d.day === 10 && calMonth === 2 && calYear === 2026 ? "today" : "",
-                    d.currentMonth && d.day === selectedDay && calMonth === 2 && calYear === 2026 ? "selected" : "",
-                    d.currentMonth && DEVOIRS[d.day] && calMonth === 2 && calYear === 2026 ? "has-devoirs" : "",
+                    !d.currentMonth ? "other-month" : "",
+                    d.currentMonth && d.day === 10 && isMars2026 ? "today" : "",
+                    d.currentMonth && d.day === selected.day && calMonth === selected.month && calYear === selected.year ? "selected" : "",
+                    d.currentMonth && DEVOIRS[d.day] && isMars2026 ? "has-devoirs" : "",
                   ].join(" ")}
                 >
                   {d.day}
@@ -153,8 +154,8 @@ export default function CahierDeTexte() {
                       <label className="cdt-effectue">
                         <input
                           type="checkbox"
-                          checked={isChecked(selectedDay, idx, item.effectue)}
-                          onChange={() => toggleChecked(selectedDay, idx, item.effectue)}
+                          checked={isChecked(selected.day, idx, item.effectue)}
+                          onChange={() => toggleChecked(selected.day, idx, item.effectue)}
                         />
                         <span>Effectué</span>
                       </label>
@@ -178,10 +179,10 @@ export default function CahierDeTexte() {
           {WEEK_NAV.map(w => (
             <button
               key={w.day}
-              onClick={() => setSelectedDay(w.day)}
+              onClick={() => { setSelected({ day: w.day, month: 2, year: 2026 }); setCalMonth(2); setCalYear(2026); }}
               className={[
                 "cdt-nav-day",
-                selectedDay === w.day ? "active" : "",
+                selected.day === w.day && selected.month === 2 && selected.year === 2026 ? "active" : "",
                 DEVOIRS[w.day]?.items.length > 0 ? "has-items" : "",
               ].join(" ")}
             >
