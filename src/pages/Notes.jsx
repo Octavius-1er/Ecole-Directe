@@ -85,6 +85,43 @@ const DATA = {
   },
 };
 
+function computeAnnee() {
+  const allReleves = Object.values(DATA);
+  if (allReleves.length === 0) return null;
+
+  // Regroupe toutes les matières et calcule la moyenne des moyennes
+  const matiereMap = {};
+  allReleves.forEach(releve => {
+    releve.notes.forEach(n => {
+      const key = n.matiere;
+      if (!matiereMap[key]) matiereMap[key] = { matiere: key, prof: n.prof, sum: 0, count: 0, evals: [] };
+      matiereMap[key].sum += parseFloat(n.moyenne.replace(",", "."));
+      matiereMap[key].count += 1;
+      matiereMap[key].evals.push(...n.evals);
+    });
+  });
+
+  const notes = Object.values(matiereMap).map(m => ({
+    matiere: m.matiere,
+    prof: m.prof,
+    moyenne: (m.sum / m.count).toFixed(2).replace(".", ","),
+    evals: m.evals,
+  }));
+
+  const moyenneGenerale = (notes.reduce((s, n) => s + parseFloat(n.moyenne.replace(",", ".")), 0) / notes.length).toFixed(2).replace(".", ",");
+
+  return {
+    conseil: "Moyenne annuelle calculée sur tous les relevés disponibles",
+    moyenneGenerale,
+    moyenneClasse: "—",
+    moyenneMin: "—",
+    moyenneMax: "—",
+    notes,
+    moyennes: notes.map(n => ({ matiere: n.matiere, eleve: n.moyenne, classe: "—", min: "—", max: "—" })),
+    competences: allReleves[0]?.competences || [],
+  };
+}
+
 function EmptyState({ label }) {
   return (
     <div className="empty-state">
@@ -100,9 +137,10 @@ export default function Notes() {
   const [activeTab, setActiveTab] = useState("evaluations");
 
   const trimestre = TRIMESTRES.find(t => t.id === activeTrimestre);
+  const isAnnee = activeTrimestre === "annee";
   const currentId = trimestre?.releves.length > 0 ? activeReleve : activeTrimestre;
-  const current = DATA[currentId] || null;
-  const activeLabel = trimestre?.releves.find(r => r.id === activeReleve)?.label || trimestre?.label;
+  const current = isAnnee ? computeAnnee() : (DATA[currentId] || null);
+  const activeLabel = isAnnee ? "Année" : (trimestre?.releves.find(r => r.id === activeReleve)?.label || trimestre?.label);
 
   function handleTrimestreChange(t) {
     setActiveTrimestre(t.id);
