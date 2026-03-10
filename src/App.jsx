@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
@@ -13,11 +13,15 @@ import CahierDeTextes from "./pages/CahierDeTexte";
 import "./App.css";
 
 export default function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <Router>
       <div className="app-layout">
-        <Sidebar />
-        <div className="app-content">
+
+        <Sidebar expanded={sidebarOpen} onEnter={() => setSidebarOpen(true)} onLeave={() => setSidebarOpen(false)} />
+
+        <div className={`app-content ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/vie-scolaire" element={<VieScolaire />} />
@@ -27,6 +31,7 @@ export default function App() {
             <Route path="/cahier-de-texte" element={<CahierDeTextes />} />
           </Routes>
         </div>
+
       </div>
     </Router>
   );
