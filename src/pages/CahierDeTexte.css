@@ -2,74 +2,174 @@
   padding: 20px;
 }
 
-.subtitle {
-  color: #555;
-  margin-bottom: 20px;
+.cdt-title {
+  font-size: 22px;
+  color: #1a4fa0;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.cdt-subtitle {
+  font-size: 15px;
+  font-weight: 400;
+  color: #666;
 }
 
 .cdt-layout {
   display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 25px;
+  grid-template-columns: 260px 1fr;
+  gap: 30px;
+  align-items: start;
 }
 
-/* Calendrier */
+/* ── Calendrier ── */
 .cdt-calendar {
   background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
-.cdt-calendar h2 {
-  text-align: center;
-  margin-bottom: 15px;
+.cal-header {
+  background: #1a4fa0;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
 }
 
-.calendar-grid {
+.cal-month {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.cal-nav {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 6px;
+  line-height: 1;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+
+.cal-nav:hover { opacity: 1; }
+
+.cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  padding: 10px;
+  gap: 2px;
+}
+
+.cal-dayname {
   text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a4fa0;
+  padding: 4px 0;
 }
 
-.calendar-grid span {
-  padding: 8px;
-  border-radius: 6px;
-  background: #f5f5f5;
-}
-
-.calendar-grid .active {
-  background: #3b82f6;
-  color: white;
-}
-
-/* Devoirs */
-.cdt-homework {
+.cal-day {
+  text-align: center;
+  font-size: 13px;
+  padding: 6px 4px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s;
+  color: #333;
+  aspect-ratio: 1;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-day:hover { background: #e3f0ff; }
+.cal-day.other-month { color: #bbb; cursor: default; }
+.cal-day.other-month:hover { background: none; }
+
+.cal-day.today {
+  color: #1a4fa0;
+  font-weight: 700;
+}
+
+.cal-day.selected {
+  background: #1a4fa0;
+  color: white;
+  font-weight: 700;
+}
+
+/* ── Devoirs ── */
+.cdt-right {
+  min-width: 0;
+}
+
+.cdt-devoirs-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  letter-spacing: 0.03em;
+}
+
+.cdt-group {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+  overflow: hidden;
+  animation: fadeUp 0.3s ease both;
+}
+
+.cdt-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 10px;
+}
+
+.cdt-bar {
+  width: 4px;
+  height: 24px;
+  background: #1a4fa0;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.cdt-date {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a9ad7;
+  letter-spacing: 0.04em;
+}
+
+.cdt-group-body {
+  padding: 4px 20px 14px 36px;
+}
+
+.cdt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f5f5f5;
   gap: 20px;
 }
 
-.hw-card {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
+.cdt-item:last-child { border-bottom: none; }
 
-.hw-card h3 {
-  margin-bottom: 8px;
-}
-
-.hw-meta {
-  color: #777;
+.cdt-matiere {
   font-size: 14px;
-  margin-bottom: 10px;
+  font-weight: 500;
+  color: #222;
+  flex-shrink: 0;
 }
 
-.checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.cdt-donne {
+  font-size: 13px;
+  color: #888;
+  text-align: right;
 }
