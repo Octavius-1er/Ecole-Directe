@@ -1,34 +1,116 @@
 .sidebar {
-  width: 230px;
-  height: 100vh;
-  background: #1e3a8a;
-  color: white;
-  padding: 20px;
+  width: 60px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a4fa0 0%, #1565c0 100%);
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-shadow: 3px 0 12px rgba(0,0,0,0.2);
 }
 
-.sidebar-title {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 25px;
+.sidebar.expanded {
+  width: 200px;
 }
 
+/* Avatar */
+.sidebar-avatar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 10px;
+  width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  margin-bottom: 8px;
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.5);
+}
+
+.avatar-name {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* Menu items */
 .sidebar-menu {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  gap: 2px;
+  padding: 0 6px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
   gap: 12px;
-}
-
-.sidebar-menu a {
-  color: white;
+  padding: 12px 8px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.8);
   text-decoration: none;
-  padding: 10px;
-  border-radius: 6px;
-  transition: 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+  white-space: nowrap;
 }
 
-.sidebar-menu a:hover {
-  background: rgba(255, 255, 255, 0.2);
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.15);
+  color: white;
 }
+
+.sidebar-item.active {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border-left: 3px solid white;
+}
+
+.sidebar-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-label {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+}
+
+.sidebar-badge {
+  margin-left: auto;
+  background: #e91e63;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* Ajuster le contenu principal */
