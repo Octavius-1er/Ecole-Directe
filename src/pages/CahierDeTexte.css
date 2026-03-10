@@ -1,24 +1,22 @@
-.cdt-container {
-  padding: 20px;
-}
+.cdt-container { padding: 20px 10px 20px 20px; }
 
 .cdt-title {
   font-size: 22px;
   color: #1a4fa0;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   font-weight: 600;
 }
 
 .cdt-subtitle {
   font-size: 15px;
   font-weight: 400;
-  color: #666;
+  color: #555;
 }
 
 .cdt-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 30px;
+  grid-template-columns: 260px 1fr 50px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -39,10 +37,7 @@
   padding: 10px 14px;
 }
 
-.cal-month {
-  font-size: 15px;
-  font-weight: 500;
-}
+.cal-month { font-size: 15px; }
 
 .cal-nav {
   background: none;
@@ -51,17 +46,14 @@
   font-size: 20px;
   cursor: pointer;
   padding: 0 6px;
-  line-height: 1;
   opacity: 0.85;
-  transition: opacity 0.15s;
 }
-
 .cal-nav:hover { opacity: 1; }
 
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  padding: 10px;
+  padding: 10px 8px;
   gap: 2px;
 }
 
@@ -76,100 +68,234 @@
 .cal-day {
   text-align: center;
   font-size: 13px;
-  padding: 6px 4px;
+  padding: 5px 2px;
   border-radius: 50%;
-  cursor: pointer;
-  transition: background 0.15s;
+  cursor: default;
   color: #333;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s;
 }
 
-.cal-day:hover { background: #e3f0ff; }
-.cal-day.other-month { color: #bbb; cursor: default; }
-.cal-day.other-month:hover { background: none; }
-
-.cal-day.today {
-  color: #1a4fa0;
+.cal-day.has-devoirs { cursor: pointer; }
+.cal-day.has-devoirs:hover { background: #e3f0ff; }
+.cal-day.other-month { color: #bbb; }
+.cal-day.today { color: #1a4fa0; font-weight: 700; }
+.cal-day.selected {
+  background: #1a4fa0 !important;
+  color: white;
   font-weight: 700;
 }
 
-.cal-day.selected {
+/* ── Centre : devoirs ── */
+.cdt-center { min-width: 0; }
+
+.cdt-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.cdt-tabs { display: flex; gap: 0; }
+
+.cdt-tab {
+  padding: 7px 18px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.cdt-tab:first-child { border-radius: 4px 0 0 4px; }
+.cdt-tab:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
+
+.cdt-tab.active {
+  background: white;
+  color: #333;
+  font-weight: 600;
+  border-color: #aaa;
+}
+
+.cdt-print {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+  padding: 4px;
+}
+
+.cdt-day-title {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 16px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Cards ── */
+.cdt-cards { display: flex; flex-direction: column; gap: 16px; }
+
+.cdt-card {
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  overflow: hidden;
+  animation: fadeUp 0.25s ease both;
+}
+
+.cdt-card-header {
+  display: flex;
+  align-items: stretch;
+}
+
+.cdt-card-bar {
+  width: 5px;
+  background: #1a7ac7;
+  flex-shrink: 0;
+}
+
+.cdt-card-top {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cdt-card-matiere {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a7ac7;
+  letter-spacing: 0.03em;
+}
+
+.cdt-seance-btn {
+  background: none;
+  border: 1px solid #1a7ac7;
+  color: #1a7ac7;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 12px;
+  transition: 0.15s;
+}
+.cdt-seance-btn:hover { background: #e8f4ff; }
+
+.cdt-effectue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cdt-effectue input[type="checkbox"] {
+  accent-color: #1a7ac7;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.cdt-card-body {
+  padding: 10px 16px 16px 21px;
+}
+
+.cdt-card-body p {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.cdt-card-donne {
+  font-style: italic;
+  color: #888 !important;
+  font-size: 13px !important;
+  margin-top: 10px !important;
+}
+
+.cdt-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 15px;
+}
+
+/* ── Nav verticale droite ── */
+.cdt-weeknav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  position: sticky;
+  top: 20px;
+}
+
+.cdt-weeknav-arrow {
+  background: #1a4fa0;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.cdt-weeknav-day {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  background: #e8f0fb;
+  border: none;
+  color: #555;
+  font-size: 12px;
+  padding: 10px 6px;
+  cursor: default;
+  border-radius: 3px;
+  transition: 0.15s;
+  white-space: nowrap;
+}
+
+.cdt-weeknav-day.has-devoirs {
+  cursor: pointer;
+  color: #1a4fa0;
+}
+
+.cdt-weeknav-day.has-devoirs:hover { background: #d0e4f7; }
+
+.cdt-weeknav-day.active {
   background: #1a4fa0;
   color: white;
   font-weight: 700;
 }
 
-/* ── Devoirs ── */
-.cdt-right {
-  min-width: 0;
-}
-
-.cdt-devoirs-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
-  letter-spacing: 0.03em;
-}
-
-.cdt-group {
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  margin-bottom: 16px;
-  overflow: hidden;
-  animation: fadeUp 0.3s ease both;
-}
-
-.cdt-group-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 20px 10px;
-}
-
-.cdt-bar {
-  width: 4px;
-  height: 24px;
-  background: #1a4fa0;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.cdt-date {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a9ad7;
-  letter-spacing: 0.04em;
-}
-
-.cdt-group-body {
-  padding: 4px 20px 14px 36px;
-}
-
-.cdt-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #f5f5f5;
-  gap: 20px;
-}
-
-.cdt-item:last-child { border-bottom: none; }
-
-.cdt-matiere {
-  font-size: 14px;
-  font-weight: 500;
-  color: #222;
-  flex-shrink: 0;
-}
-
-.cdt-donne {
-  font-size: 13px;
-  color: #888;
-  text-align: right;
+.cdt-weeknav-label {
+  writing-mode: vertical-rl;
+  background: none;
+  border: none;
+  color: #1a7ac7;
+  font-size: 11px;
+  padding: 8px 4px;
+  cursor: pointer;
+  margin-top: 4px;
+  white-space: nowrap;
 }
