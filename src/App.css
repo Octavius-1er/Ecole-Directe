@@ -4,9 +4,9 @@
 }
 
 .app-content {
-  margin-left: 230px;
+  margin-left: 60px;
   padding: 20px;
-  width: calc(100% - 230px);
+  width: calc(100% - 60px);
   min-height: 100vh;
   overflow-y: auto;
 }
