@@ -133,3 +133,29 @@
 .sidebar.expanded .sidebar-badge {
   opacity: 1;
 }
+
+/* Déconnexion */
+.sidebar-logout {
+  margin-top: auto;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  width: 100%;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sidebar-logout:hover { background: rgba(255,255,255,0.12); color: white; }
+
+.avatar-role {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.75;
+}
