@@ -119,9 +119,9 @@ export default function CahierDeTexte() {
                   className={[
                     "cal-day",
                     !d.currentMonth          ? "other-month" : "",
-                    d.currentMonth && d.day === 10 && calMonth === 2 ? "today" : "",
-                    d.currentMonth && d.day === selectedDay && calMonth === 2 ? "selected" : "",
-                    d.currentMonth && DEVOIRS[d.day] && calMonth === 2 ? "has-devoirs" : "",
+                    d.currentMonth && d.day === 10 && calMonth === 2 && calYear === 2026 ? "today" : "",
+                    d.currentMonth && d.day === selectedDay && calMonth === 2 && calYear === 2026 ? "selected" : "",
+                    d.currentMonth && DEVOIRS[d.day] && calMonth === 2 && calYear === 2026 ? "has-devoirs" : "",
                   ].join(" ")}
                 >
                   {d.day}
