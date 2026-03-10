@@ -2,87 +2,252 @@
   padding: 20px;
 }
 
-.subtitle {
-  color: #555;
+.notes-title {
+  font-size: 28px;
+  color: #1e3a8a;
   margin-bottom: 20px;
 }
 
-/* Tabs */
-.notes-tabs {
+/* ── Onglets trimestres ── */
+.trimestre-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.trimestre-tab {
+  background: none;
+  border: none;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3b82f6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.trimestre-tab:hover {
+  background: #eff6ff;
+}
+
+.trimestre-tab.active {
+  background: white;
+  color: #1e293b;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+/* ── Info conseil ── */
+.conseil-info {
+  font-size: 14px;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 18px;
+}
+
+/* ── Sous-onglets ── */
+.sub-tabs {
   display: flex;
   gap: 10px;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
-.tab {
-  padding: 10px 24px;
-  border: none;
-  border-radius: 8px;
-  background: #e2e8f0;
-  color: #555;
+.sub-tab {
+  background: none;
+  border: 2px solid transparent;
+  padding: 8px 22px;
   font-size: 15px;
   font-weight: 600;
-  transition: 0.2s;
+  color: #64748b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.15s;
 }
 
-.tab:hover {
-  background: #cbd5e1;
+.sub-tab:hover {
+  color: #1e3a8a;
+  background: #eff6ff;
 }
 
-.tab.active {
-  background: #1e3a8a;
-  color: white;
+.sub-tab.active {
+  border-color: #3b82f6;
+  color: #1e3a8a;
+  background: white;
+  box-shadow: 0 1px 4px rgba(59,130,246,0.15);
 }
 
-/* Tables */
+/* ── Contenu onglet ── */
+.tab-content {
+  animation: fadeUp 0.3s ease both;
+}
+
+/* ── Table principale ── */
 .notes-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.notes-table th,
-.notes-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
+.notes-table thead tr {
+  background: #2563eb;
+  color: white;
 }
 
 .notes-table th {
-  background: #f5f5f5;
-  font-weight: bold;
-}
-
-/* Compétences */
-.comp-table td {
-  text-align: center;
-  height: 45px;
-}
-
-.comp-table td:first-child {
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   text-align: left;
 }
 
-.matiere {
-  font-weight: bold;
-  background: #fafafa;
-  text-align: center !important;
+.notes-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  vertical-align: middle;
 }
 
-/* Moyenne générale */
+.notes-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.notes-table tbody tr:hover {
+  background: #f8faff;
+}
+
+.matiere-name {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.prof-name {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.center { text-align: center; }
+.bold { font-weight: 700; color: #1e3a8a; }
+.muted { color: #94a3b8; }
+
+/* ── Pills d'évaluation ── */
+.evals-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.eval-pill {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Moyenne générale ── */
 .moyenne-generale {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: #1e3a8a;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 10px;
+  font-size: 18px;
   text-align: center;
-  font-size: 20px;
-  font-weight: bold;
 }
 
+/* ── Moyenne box ── */
 .moyenne-box {
   background: white;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  width: 300px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  width: 280px;
+}
+
+.moyenne-box h3 {
+  color: #1e3a8a;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.moyenne-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #475569;
+}
+
+.moyenne-row:last-child { border-bottom: none; }
+.moyenne-row strong { color: #1e3a8a; }
+
+/* ── Compétences ── */
+.comp-table td { vertical-align: middle; }
+
+.matiere-cell {
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center !important;
+  background: #f8faff;
+  color: #1e3a8a;
+  letter-spacing: 0.03em;
+}
+
+/* ── Graphiques ── */
+.graph-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.graph-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.graph-label {
+  width: 180px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  flex-shrink: 0;
+}
+
+.graph-bar-bg {
+  flex: 1;
+  background: #e2e8f0;
+  border-radius: 6px;
+  height: 22px;
+  overflow: hidden;
+}
+
+.graph-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+}
+
+.graph-value {
+  width: 40px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e3a8a;
+  flex-shrink: 0;
 }
