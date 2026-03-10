@@ -31,8 +31,9 @@
 .cal-day:hover { background: #e3f0ff; }
 .cal-day.other-month { color: #ccc; }
 .cal-day.today { color: #1a4fa0; font-weight: 700; }
-.cal-day.selected { background: #1a4fa0 !important; color: white; font-weight: 700; }
+.cal-day.selected { background: #1a4fa0 !important; color: white !important; font-weight: 700; }
 .cal-day.has-devoirs { font-weight: 600; color: #1a4fa0; }
+.cal-day.has-devoirs.selected { color: white !important; }
 
 /* ── Centre ── */
 .cdt-center { min-width: 0; }
