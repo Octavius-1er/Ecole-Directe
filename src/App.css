@@ -1,9 +1,12 @@
 .app-layout {
   display: flex;
+  min-height: 100vh;
 }
 
 .app-content {
   margin-left: 230px;
   padding: 20px;
   width: calc(100% - 230px);
+  min-height: 100vh;
+  overflow-y: auto;
 }
