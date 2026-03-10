@@ -9,16 +9,16 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   box-shadow: 3px 0 12px rgba(0,0,0,0.2);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.expanded {
   width: 200px;
 }
 
-/* Avatar */
+/* ── Avatar ── */
 .sidebar-avatar {
   display: flex;
   align-items: center;
@@ -27,6 +27,7 @@
   width: 100%;
   border-bottom: 1px solid rgba(255,255,255,0.15);
   margin-bottom: 8px;
+  overflow: hidden;
 }
 
 .avatar-circle {
@@ -48,13 +49,19 @@
   display: flex;
   flex-direction: column;
   color: white;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
   line-height: 1.4;
+  opacity: 0;
+  transition: opacity 0.2s ease 0.05s;
 }
 
-/* Menu items */
+.sidebar.expanded .avatar-name {
+  opacity: 1;
+}
+
+/* ── Menu ── */
 .sidebar-menu {
   display: flex;
   flex-direction: column;
@@ -76,6 +83,7 @@
   transition: background 0.15s, color 0.15s;
   position: relative;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .sidebar-item:hover {
@@ -99,7 +107,14 @@
 .sidebar-label {
   font-size: 13px;
   font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease 0.05s;
+  flex: 1;
   overflow: hidden;
+}
+
+.sidebar.expanded .sidebar-label {
+  opacity: 1;
 }
 
 .sidebar-badge {
@@ -111,6 +126,10 @@
   padding: 2px 7px;
   border-radius: 10px;
   white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease 0.05s;
 }
 
-/* Ajuster le contenu principal */
+.sidebar.expanded .sidebar-badge {
+  opacity: 1;
+}
