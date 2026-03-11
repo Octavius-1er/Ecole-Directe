@@ -60,12 +60,6 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="login-hint">
-          <p><strong>Comptes de démonstration :</strong></p>
-          <p>Admin : <code>admin</code> / <code>admin123</code></p>
-          <p>Prof : <code>fischer</code> / <code>prof123</code></p>
-          <p>Élève : <code>octave</code> / <code>eleve123</code></p>
-        </div>
 
       </div>
     </div>
