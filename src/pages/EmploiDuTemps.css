@@ -1,68 +1,285 @@
-.edt-container { padding: 20px; animation: fadeUp 0.3s ease; }
-.edt-title { font-size: 26px; color: #1a4fa0; font-weight: 700; margin-bottom: 24px; }
-
-.edt-days-nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
-.edt-day-btn {
-  padding: 9px 18px; border: 1.5px solid #dde3ef; background: white;
-  border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569;
-  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
+.edt-container {
+  padding: 28px 20px;
+  animation: fadeUp 0.3s ease;
+  max-width: 900px;
 }
-.edt-day-btn.active { background: #1a4fa0; color: white; border-color: #1a4fa0; }
+
+.edt-title {
+  font-size: 24px;
+  color: #1a4fa0;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+/* ── Sélecteur classe ── */
+.edt-class-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: white;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 16px;
+}
+.edt-class-selector label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  white-space: nowrap;
+}
+.edt-class-selector select {
+  padding: 7px 12px;
+  border: 1.5px solid #dde3ef;
+  border-radius: 7px;
+  font-size: 14px;
+  font-family: 'Outfit', sans-serif;
+  outline: none;
+  min-width: 160px;
+  flex: 1;
+}
+.selector-chip {
+  background: #eff6ff;
+  color: #1a4fa0;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Nav jours ── */
+.edt-days-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.edt-day-btn {
+  padding: 8px 14px;
+  border: 1.5px solid #dde3ef;
+  background: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: 0.15s;
+  flex: 1;
+  min-width: 70px;
+  text-align: center;
+}
+.edt-day-btn.active {
+  background: #1a4fa0;
+  color: white;
+  border-color: #1a4fa0;
+}
 .edt-day-btn:hover:not(.active) { background: #f0f4fb; }
 
-.edt-actions { margin-bottom: 14px; }
+/* ── Actions ── */
+.edt-actions { margin-bottom: 12px; }
 
-.edt-day-content { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-.edt-day-label { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 20px; }
-.edt-empty { color: #94a3b8; font-size: 15px; padding: 32px 0; text-align: center; }
+/* ── Formulaire ── */
+.edt-form {
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin-bottom: 16px;
+}
+.edt-form-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.edt-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 120px;
+}
+.edt-form-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.edt-form-field input,
+.edt-form-field select {
+  padding: 8px 12px;
+  border: 1.5px solid #dde3ef;
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: 'Outfit', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+  background: white;
+  width: 100%;
+  box-sizing: border-box;
+}
+.edt-form-field input:focus,
+.edt-form-field select:focus { border-color: #1a4fa0; }
 
-.edt-slots { display: flex; flex-direction: column; gap: 12px; }
+/* ── Contenu jour ── */
+.edt-day-content {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.edt-day-label {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+.edt-empty {
+  color: #94a3b8;
+  font-size: 15px;
+  padding: 24px 0;
+  text-align: center;
+}
+.edt-empty-state {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
 
+/* ── Créneaux ── */
+.edt-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .edt-slot {
-  display: flex; align-items: center; gap: 16px;
-  padding: 14px 16px; border-left: 4px solid #3b82f6;
-  background: #f8faff; border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-left: 4px solid #3b82f6;
+  background: #f8faff;
+  border-radius: 8px;
   transition: background 0.12s;
 }
 .edt-slot:hover { background: #eff6ff; }
 
-.edt-slot-time { font-size: 13px; color: #64748b; font-weight: 600; white-space: nowrap; min-width: 130px; }
-.edt-slot-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.edt-slot-matiere { font-size: 15px; font-weight: 700; }
-.edt-slot-prof { font-size: 13px; color: #64748b; }
+.edt-slot-time {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 110px;
+}
+.edt-slot-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.edt-slot-matiere {
+  font-size: 15px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.edt-slot-prof  { font-size: 12px; color: #64748b; }
 .edt-slot-salle { font-size: 12px; color: #94a3b8; }
 
+/* ── Boutons ── */
 .btn-add-note {
-  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
-  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
+  background: #eff6ff;
+  color: #1a4fa0;
+  border: 1.5px solid #bfdbfe;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: 0.15s;
 }
 .btn-add-note:hover { background: #dbeafe; }
 
-.add-note-form {
-  display: flex; flex-wrap: wrap; gap: 10px;
-  background: white; padding: 16px; border-radius: 10px;
-  border: 1.5px solid #bfdbfe; margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.add-note-form input, .add-note-form select {
-  padding: 8px 12px; border: 1.5px solid #dde3ef; border-radius: 7px;
-  font-size: 13px; font-family: 'Outfit', sans-serif; outline: none;
-  transition: border-color 0.15s; flex: 1; min-width: 130px;
-}
-.add-note-form input:focus, .add-note-form select:focus { border-color: #1a4fa0; }
-
 .btn-primary-sm {
-  background: #1a4fa0; color: white; border: none; padding: 8px 18px;
-  border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer;
-  font-family: 'Outfit', sans-serif; white-space: nowrap;
+  background: #1a4fa0;
+  color: white;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  white-space: nowrap;
+  width: 100%;
 }
 .btn-primary-sm:hover { opacity: 0.88; }
 
 .btn-del-sm {
-  background: #fee2e2; color: #dc2626; border: none; padding: 5px 10px;
-  border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 .btn-del-sm:hover { background: #fecaca; }
 
-.add-success { color: #16a34a; font-size: 13px; font-weight: 600; align-self: center; }
+.add-success {
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 600px) {
+  .edt-container { padding: 16px 12px; }
+  .edt-title { font-size: 20px; margin-bottom: 14px; }
+
+  .edt-days-nav { gap: 4px; }
+  .edt-day-btn {
+    padding: 7px 6px;
+    font-size: 12px;
+    min-width: 44px;
+    flex: 1;
+  }
+
+  .edt-slot {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 12px;
+  }
+  .edt-slot-time {
+    min-width: unset;
+    width: 100%;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: -4px;
+  }
+  .edt-slot-matiere { font-size: 14px; }
+
+  .edt-day-content { padding: 14px 12px; }
+  .edt-day-label   { font-size: 15px; }
+
+  .edt-form-row { gap: 8px; }
+  .edt-form-field { min-width: calc(50% - 4px); }
+
+  .edt-class-selector { padding: 10px 12px; }
+  .edt-class-selector select { min-width: 120px; }
+}
