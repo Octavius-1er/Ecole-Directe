@@ -48,7 +48,7 @@ export default function Notes(){
   // Sélecteur de classe (prof/admin)
   const [selectedClasse, setSelectedClasse]=useState(Object.keys(classes)[0]||"");
   // Sélecteur d'élève (prof/admin : voir notes d'un élève)
-  const elevesDeClasse=accounts.filter(a=>a.role==="eleve"&&a.classeId===selectedClasse);
+  const elevesDeClasse=accounts.filter(a=>a.role==="eleve"&&(!selectedClasse||a.classeId===selectedClasse));
   const [selectedEleve, setSelectedEleve]=useState(null);
 
   // Élève courant : si élève connecté → lui-même ; si prof/admin → selectedEleve
