@@ -1,66 +1,57 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase";
 
 const AuthContext = createContext(null);
 
-// Comptes par défaut au premier lancement
 const DEFAULT_ACCOUNTS = [
-  {
-    id: "1",
-    username: "admin",
-    password: "admin123",
-    role: "admin",
-    nom: "Administrateur",
-    prenom: "Principal",
-  },
-  {
-    id: "2",
-    username: "fischer",
-    password: "prof123",
-    role: "prof",
-    nom: "Fischer",
-    prenom: "N.",
-    matiere: "Français",
-  },
-  {
-    id: "3",
-    username: "octave",
-    password: "eleve123",
-    role: "eleve",
-    nom: "Le Chatelier Gaign.",
-    prenom: "Octave",
-    classe: "5ème F EUROP.",
-  },
+  { id:"1", username:"admin",   password:"admin123", role:"admin", nom:"Administrateur", prenom:"Principal" },
+  { id:"2", username:"fischer", password:"prof123",  role:"prof",  nom:"Fischer",        prenom:"N.", matiere:"Français" },
+  { id:"3", username:"octave",  password:"eleve123", role:"eleve", nom:"Le Chatelier Gaign.", prenom:"Octave", classe:"5ème F EUROP." },
 ];
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [accounts, setAccounts] = useState(() => {
-    try {
-      const saved = localStorage.getItem("ed_accounts");
-      return saved ? JSON.parse(saved) : DEFAULT_ACCOUNTS;
-    } catch { return DEFAULT_ACCOUNTS; }
-  });
+  const [user,     setUser]     = useState(null);
+  const [accounts, setAccounts] = useState(DEFAULT_ACCOUNTS);
+  const [ready,    setReady]    = useState(false);
 
-  // Persister les comptes
+  // ── Sync comptes depuis Firestore ──
   useEffect(() => {
-    localStorage.setItem("ed_accounts", JSON.stringify(accounts));
-  }, [accounts]);
+    const unsub = onSnapshot(doc(db, "app", "accounts"), snap => {
+      if (snap.exists() && snap.data().data?.length) {
+        const remoteAccounts = snap.data().data;
+        setAccounts(remoteAccounts);
 
-  // Restaurer session
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("ed_session");
-      if (saved) setUser(JSON.parse(saved));
-    } catch {}
+        // Mettre à jour la session locale si le compte a changé (ex : mot de passe changé depuis un autre appareil)
+        const savedId = localStorage.getItem("ed_session_id");
+        if (savedId) {
+          const found = remoteAccounts.find(a => a.id === savedId);
+          if (found) {
+            setUser(found);
+          } else {
+            // Compte supprimé
+            setUser(null);
+            localStorage.removeItem("ed_session_id");
+          }
+        }
+      } else {
+        // Premier lancement : initialiser avec les comptes par défaut
+        saveAccounts(DEFAULT_ACCOUNTS);
+      }
+      setReady(true);
+    });
+    return () => unsub();
   }, []);
 
+  async function saveAccounts(list) {
+    await setDoc(doc(db, "app", "accounts"), { data: list, updatedAt: serverTimestamp() }, { merge: true });
+  }
+
   function login(username, password) {
-    const found = accounts.find(
-      a => a.username === username && a.password === password
-    );
+    const found = accounts.find(a => a.username === username && a.password === password);
     if (found) {
       setUser(found);
-      localStorage.setItem("ed_session", JSON.stringify(found));
+      localStorage.setItem("ed_session_id", found.id);
       return { success: true };
     }
     return { success: false, error: "Identifiant ou mot de passe incorrect." };
@@ -68,29 +59,36 @@ export function AuthProvider({ children }) {
 
   function logout() {
     setUser(null);
-    localStorage.removeItem("ed_session");
+    localStorage.removeItem("ed_session_id");
   }
 
-  function addAccount(account) {
+  async function addAccount(account) {
     const newAcc = { ...account, id: Date.now().toString() };
-    setAccounts(prev => [...prev, newAcc]);
+    const next   = [...accounts, newAcc];
+    await saveAccounts(next);
   }
 
-  function updateAccount(id, updates) {
-    setAccounts(prev =>
-      prev.map(a => a.id === id ? { ...a, ...updates } : a)
-    );
-    // Si c'est l'utilisateur connecté, mettre à jour la session
+  async function updateAccount(id, updates) {
+    const next = accounts.map(a => a.id === id ? { ...a, ...updates } : a);
+    await saveAccounts(next);
     if (user?.id === id) {
       const updated = { ...user, ...updates };
       setUser(updated);
-      localStorage.setItem("ed_session", JSON.stringify(updated));
     }
   }
 
-  function deleteAccount(id) {
-    setAccounts(prev => prev.filter(a => a.id !== id));
+  async function deleteAccount(id) {
+    const next = accounts.filter(a => a.id !== id);
+    await saveAccounts(next);
   }
+
+  if (!ready) return (
+    <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", flexDirection:"column", gap:16, fontFamily:"Outfit,sans-serif", color:"#1a4fa0" }}>
+      <div style={{ width:40, height:40, border:"4px solid #bfdbfe", borderTop:"4px solid #1a4fa0", borderRadius:"50%", animation:"spin 0.8s linear infinite" }}/>
+      <p style={{ fontWeight:600 }}>Connexion en cours...</p>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
 
   return (
     <AuthContext.Provider value={{ user, accounts, login, logout, addAccount, updateAccount, deleteAccount }}>
@@ -99,6 +97,4 @@ export function AuthProvider({ children }) {
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export function useAuth() { return useContext(AuthContext); }
