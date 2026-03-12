@@ -1,240 +1,377 @@
-.notes-container { padding: 28px 20px; animation: fadeUp 0.3s ease; max-width: 1000px; }
-.notes-title { font-size: 24px; color: #1a4fa0; font-weight: 800; margin-bottom: 20px; }
+import React, { useState, useMemo } from "react";
+import { useAuth } from "../AuthContext";
+import { useData } from "../DataContext";
+import "./Notes.css";
 
-/* ── Sélecteurs ── */
-.notes-selector-bar {
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  background: white; border-radius: 10px; padding: 12px 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px;
-}
-.selector-group { display: flex; flex-direction: column; gap: 3px; }
-.selector-group label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-.selector-group select {
-  padding: 7px 12px; border: 1.5px solid #dde3ef; border-radius: 7px;
-  font-size: 14px; font-family: 'Outfit', sans-serif; outline: none; min-width: 160px;
-}
-.selector-group select:focus { border-color: #1a4fa0; }
-.selector-eleve-chip {
-  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
-  border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 600;
+const MATIERES = ["Français","Mathématiques","Anglais LV1","Allemand LV2","Histoire-Géo","Sciences Vie & Terre","Physique-Chimie","Technologie","EPS","Arts Plastiques","Éducation Musicale","LCA Latin"];
+const TYPES_EVAL = ["Contrôle","Devoir maison","Interrogation","Examen blanc","TP","Oral","Projet"];
+const TRIMESTRES = [
+  { id:"t1", label:"1er Trimestre", releves:[{id:"r1",label:"Relevé 1"},{id:"r2",label:"Relevé 2"}] },
+  { id:"t2", label:"2ème Trimestre", releves:[{id:"r3",label:"Relevé 3"},{id:"r4",label:"Relevé 4"}] },
+  { id:"t3", label:"3ème Trimestre", releves:[{id:"r5",label:"Relevé 5"},{id:"r6",label:"Relevé 6"}] },
+  { id:"annee", label:"Année", releves:[] },
+];
+
+function fmt(n) { return n == null ? "—" : (typeof n === "number" ? n.toFixed(2).replace(".",",") : n); }
+function parseVal(v) {
+  const s = String(v).replace(",",".");
+  const m = s.match(/^([\d.]+)\/([\d.]+)$/);
+  if (m) return (parseFloat(m[1])/parseFloat(m[2]))*20;
+  return parseFloat(s);
 }
 
-/* ── Onglets trimestres ── */
-.notes-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.notes-tab {
-  padding: 8px 16px; border: 1.5px solid #dde3ef; background: white;
-  border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569;
-  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
-}
-.notes-tab.active { background: #1a4fa0; color: white; border-color: #1a4fa0; }
-.notes-tab:hover:not(.active) { background: #f0f4fb; }
+export default function Notes() {
+  const { user, accounts } = useAuth();
+  const { classes, evals, getEvalsEleve, getEvalsClasse, getMoyenneEleve, getStatsMatiere, addEval, deleteEval } = useData();
+  const canEdit = user?.role === "admin" || user?.role === "prof";
 
-/* ── Relevés ── */
-.notes-releves { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-.releve-tab {
-  padding: 5px 14px; border: 1.5px solid #dde3ef; background: white;
-  border-radius: 20px; font-size: 12px; font-weight: 600; color: #64748b;
-  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
-}
-.releve-tab.active { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
+  // Sélection classe / élève
+  const [selectedClasse, setSelectedClasse] = useState(Object.keys(classes)[0] || "");
+  const classeId = user?.role === "eleve" ? user?.classeId : selectedClasse;
+  const elevesClasse = accounts.filter(a => a.role === "eleve" && (!classeId || a.classeId === classeId));
+  const [selectedEleve, setSelectedEleve] = useState(null);
+  const targetEleveId = user?.role === "eleve" ? user.id : selectedEleve;
+  const targetAccount = accounts.find(a => a.id === targetEleveId);
 
-/* ── Actions ── */
-.notes-actions { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  // Trimestre / relevé
+  const [activeTrimestre, setActiveTrimestre] = useState("t1");
+  const [activeReleve,    setActiveReleve]    = useState("r1");
+  const isAnnee = activeTrimestre === "annee";
+  const trimestre = TRIMESTRES.find(t => t.id === activeTrimestre);
 
-/* ── Formulaire éval ── */
-.eval-form {
-  background: white; border-radius: 14px; padding: 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.10); margin-bottom: 20px;
-  border: 1.5px solid #bfdbfe;
-}
-.eval-form-title {
-  font-size: 16px; font-weight: 800; color: #1a4fa0; margin-bottom: 18px;
-  padding-bottom: 12px; border-bottom: 1.5px solid #f1f5f9;
-}
-.eval-form-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px; margin-bottom: 20px;
-}
-.eval-field { display: flex; flex-direction: column; gap: 5px; }
-.eval-field label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
-.eval-field input, .eval-field select {
-  padding: 9px 12px; border: 1.5px solid #dde3ef; border-radius: 8px;
-  font-size: 14px; font-family: 'Outfit', sans-serif; outline: none; transition: 0.15s;
-}
-.eval-field input:focus, .eval-field select:focus { border-color: #1a4fa0; }
+  // Modal détail
+  const [detailEval, setDetailEval] = useState(null);
 
-/* Notes des élèves */
-.eval-notes-section { margin-bottom: 20px; }
-.eval-notes-section h4 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-.eval-notes-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px;
-}
-.eval-note-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  background: #f8faff; border-radius: 8px; padding: 8px 12px;
-  border: 1.5px solid #e2e8f0;
-}
-.eval-eleve-name { font-size: 13px; font-weight: 600; color: #334155; flex: 1; }
-.eval-note-input {
-  width: 70px; padding: 6px 10px; border: 1.5px solid #dde3ef; border-radius: 7px;
-  font-size: 14px; font-family: 'Outfit', sans-serif; text-align: center; outline: none;
-  font-weight: 700; color: #1a4fa0;
-}
-.eval-note-input:focus { border-color: #1a4fa0; background: #eff6ff; }
+  // Formulaire nouvelle éval
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ nom:"", matiere:"", type:"Contrôle", date:"", notes:{}, competences:[] });
+  const [compInput, setCompInput] = useState({ label:"", desc:"" });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
 
-/* Compétences */
-.eval-comp-section { margin-bottom: 20px; }
-.eval-comp-section h4 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-.optional { font-weight: 400; color: #94a3b8; text-transform: none; font-size: 12px; }
-.eval-comp-add { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-.eval-comp-add input {
-  flex: 1; min-width: 140px; padding: 8px 12px; border: 1.5px solid #dde3ef; border-radius: 7px;
-  font-size: 13px; font-family: 'Outfit', sans-serif; outline: none;
-}
-.eval-comp-add input:focus { border-color: #1a4fa0; }
-.comp-chip {
-  display: flex; align-items: center; gap: 8px; justify-content: space-between;
-  background: #f0f4fb; border-radius: 8px; padding: 6px 12px; font-size: 13px; margin-bottom: 6px;
-}
-.comp-chip button { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 16px; }
+  // Évals pour l'affichage
+  const evalsReleve = useMemo(() => {
+    if (!classeId || !activeReleve) return [];
+    return getEvalsClasse(classeId, activeReleve);
+  }, [evals, classeId, activeReleve]);
 
-.eval-form-footer { display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1.5px solid #f1f5f9; }
+  // Matières distinctes dans ce relevé pour l'élève
+  const matieresDansReleve = useMemo(() => {
+    if (!targetEleveId || !classeId || !activeReleve) return [];
+    const evs = getEvalsEleve(targetEleveId, classeId, activeReleve);
+    return [...new Set(evs.map(e => e.matiere))];
+  }, [evals, targetEleveId, classeId, activeReleve]);
 
-/* ── Table notes ── */
-.notes-card {
-  background: white; border-radius: 14px; padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px;
-}
-.card-subtitle { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 14px; }
-.notes-table { width: 100%; border-collapse: collapse; }
-.notes-table th {
-  text-align: left; font-size: 11px; font-weight: 700; color: #94a3b8;
-  text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px;
-  border-bottom: 1.5px solid #f1f5f9;
-}
-.notes-table td { padding: 10px 12px; border-bottom: 1px solid #f8faff; font-size: 14px; }
-.notes-table tr:last-child td { border-bottom: none; }
-.td-matiere { font-weight: 700; color: #1e293b; }
-.td-muted { color: #94a3b8; font-size: 13px; }
-.annee-row td { background: #f0f4fb; border-radius: 8px; }
+  // Moyenne générale élève sur le relevé
+  const moyGenReleve = useMemo(() => {
+    if (!targetEleveId || !classeId || !activeReleve) return null;
+    return getMoyenneEleve(targetEleveId, classeId, activeReleve);
+  }, [evals, targetEleveId, classeId, activeReleve]);
 
-/* Chips d'éval */
-.eval-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.eval-chip {
-  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
-  border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 700;
-  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
-  display: flex; align-items: center; gap: 6px;
-}
-.eval-chip:hover { background: #dbeafe; transform: translateY(-1px); }
-.chip-del {
-  color: #dc2626; font-size: 14px; line-height: 1;
-  padding: 0 2px; border-radius: 50%;
-}
-.chip-del:hover { background: #fee2e2; }
+  // Moyenne générale sur l'année
+  const moyAnnee = useMemo(() => {
+    if (!targetEleveId || !classeId) return null;
+    const allVals = ["r1","r2","r3","r4","r5","r6"]
+      .map(rid => getMoyenneEleve(targetEleveId, classeId, rid))
+      .filter(v => v != null);
+    if (!allVals.length) return null;
+    return allVals.reduce((a,b)=>a+b,0)/allVals.length;
+  }, [evals, targetEleveId, classeId]);
 
-.moy-generale {
-  text-align: right; font-size: 14px; color: #64748b;
-  padding-top: 12px; margin-top: 8px; border-top: 1.5px solid #f1f5f9;
-}
-.moy-generale strong { font-size: 18px; color: #1a4fa0; margin-left: 8px; }
+  function handleTrimestreChange(t) {
+    setActiveTrimestre(t.id);
+    if (t.releves.length > 0) setActiveReleve(t.releves[0].id);
+  }
 
-/* Liste évals prof */
-.eval-list { display: flex; flex-direction: column; gap: 10px; }
-.eval-list-item {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 12px 16px; background: #f8faff; border-radius: 10px;
-  border: 1.5px solid #e2e8f0; flex-wrap: wrap;
-}
-.eval-list-left { display: flex; flex-direction: column; gap: 3px; }
-.eval-list-nom { font-size: 15px; font-weight: 700; color: #1e293b; }
-.eval-list-meta { font-size: 12px; color: #94a3b8; }
+  async function handleSubmitEval(e) {
+    e.preventDefault();
+    if (!form.nom || !form.matiere || !classeId) return;
+    setSaving(true);
+    await addEval({ ...form, classeId, releveId: activeReleve });
+    setForm({ nom:"", matiere:"", type:"Contrôle", date:"", notes:{}, competences:[] });
+    setCompInput({ label:"", desc:"" });
+    setShowForm(false);
+    setMsg("Évaluation ajoutée ✓");
+    setTimeout(() => setMsg(""), 3000);
+    setSaving(false);
+  }
 
-/* ── Modal ── */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000;
-  display: flex; align-items: center; justify-content: center; padding: 16px;
-  animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modal-card {
-  background: white; border-radius: 16px; width: 100%; max-width: 560px;
-  max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-  animation: slideUp 0.25s ease;
-}
-@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 24px 16px; border-bottom: 1.5px solid #f1f5f9;
-}
-.modal-header h2 { font-size: 18px; font-weight: 800; color: #1a4fa0; margin: 0; }
-.modal-close {
-  background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px;
-  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: #64748b; transition: 0.15s;
-}
-.modal-close:hover { background: #fee2e2; color: #dc2626; }
-.modal-body { padding: 20px 24px; }
-.modal-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.modal-info-item { display: flex; flex-direction: column; gap: 3px; }
-.info-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-.info-note { font-size: 22px; font-weight: 800; color: #1a4fa0; }
-.modal-stats {
-  display: flex; gap: 12px; background: #f0f4fb; border-radius: 10px;
-  padding: 12px 16px; margin-bottom: 16px;
-}
-.stat-item { display: flex; flex-direction: column; gap: 3px; flex: 1; text-align: center; }
-.stat-label { font-size: 11px; color: #94a3b8; font-weight: 600; }
-.stat-item strong { font-size: 16px; color: #1a4fa0; }
-.modal-comps h4 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 12px; }
-.modal-comp-row {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-  padding: 10px 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap;
-}
-.comp-info { display: flex; flex-direction: column; gap: 3px; }
-.comp-info strong { font-size: 14px; color: #1e293b; }
-.comp-desc { font-size: 12px; color: #94a3b8; }
-.comp-niveaux { display: flex; gap: 6px; flex-wrap: wrap; }
-.comp-niveau {
-  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
-  background: #f1f5f9; color: #94a3b8; border: 1.5px solid transparent;
-}
-.comp-niveau.active { background: #fef3c7; color: #d97706; border-color: #fcd34d; }
+  function addComp() {
+    if (!compInput.label) return;
+    setForm(f => ({ ...f, competences: [...f.competences, { ...compInput, niveau:"" }] }));
+    setCompInput({ label:"", desc:"" });
+  }
 
-/* ── Empty states ── */
-.empty-state {
-  text-align: center; padding: 40px 20px; color: #94a3b8;
-}
-.empty-icon { font-size: 40px; display: block; margin-bottom: 12px; }
+  return (
+    <div className="notes-container">
+      <h1 className="notes-title">Notes et Moyennes</h1>
 
-/* ── Boutons ── */
-.btn-add-note {
-  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
-  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
-}
-.btn-add-note:hover { background: #dbeafe; }
-.btn-primary-sm {
-  background: #1a4fa0; color: white; border: none; padding: 10px 24px;
-  border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
-  font-family: 'Outfit', sans-serif;
-}
-.btn-primary-sm:hover { opacity: 0.88; }
-.btn-primary-sm:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-del-sm {
-  background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px;
-  border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600;
-  white-space: nowrap;
-}
-.btn-del-sm:hover { background: #fecaca; }
-.add-success { color: #16a34a; font-size: 13px; font-weight: 600; }
+      {/* ── Sélecteurs classe / élève ── */}
+      {canEdit && (
+        <div className="notes-selector-bar">
+          <div className="selector-group">
+            <label>Classe</label>
+            <select value={selectedClasse} onChange={e => { setSelectedClasse(e.target.value); setSelectedEleve(null); }}>
+              <option value="">— Toutes —</option>
+              {Object.values(classes).map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
+            </select>
+          </div>
+          <div className="selector-group">
+            <label>Élève</label>
+            <select value={selectedEleve||""} onChange={e => setSelectedEleve(e.target.value||null)}>
+              <option value="">— Choisir —</option>
+              {elevesClasse.map(a => <option key={a.id} value={a.id}>{a.prenom} {a.nom}</option>)}
+            </select>
+          </div>
+          {targetAccount && <div className="selector-eleve-chip">👤 {targetAccount.prenom} {targetAccount.nom}</div>}
+        </div>
+      )}
 
-/* ── Responsive ── */
-@media (max-width: 600px) {
-  .notes-container { padding: 16px 12px; }
-  .modal-info-grid { grid-template-columns: 1fr; }
-  .eval-form-grid { grid-template-columns: 1fr; }
-  .modal-stats { flex-direction: column; gap: 8px; }
-  .notes-table th:nth-child(3), .notes-table td:nth-child(3) { display: none; }
+      {/* ── Onglets trimestres ── */}
+      <div className="notes-tabs">
+        {TRIMESTRES.map(t => (
+          <button key={t.id} className={`notes-tab ${activeTrimestre===t.id?"active":""}`}
+            onClick={() => handleTrimestreChange(t)}>{t.label}</button>
+        ))}
+      </div>
+
+      {/* ── Onglets relevés ── */}
+      {!isAnnee && trimestre?.releves.length > 0 && (
+        <div className="notes-releves">
+          {trimestre.releves.map(r => (
+            <button key={r.id} className={`releve-tab ${activeReleve===r.id?"active":""}`}
+              onClick={() => setActiveReleve(r.id)}>{r.label}</button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Bouton ajouter éval (prof/admin) ── */}
+      {canEdit && !isAnnee && classeId && (
+        <div className="notes-actions">
+          <button className="btn-add-note" onClick={() => setShowForm(v => !v)}>
+            {showForm ? "✕ Fermer" : "➕ Saisir une évaluation"}
+          </button>
+          {msg && <span className="add-success">{msg}</span>}
+        </div>
+      )}
+
+      {/* ── Formulaire nouvelle éval ── */}
+      {canEdit && showForm && !isAnnee && classeId && (
+        <form className="eval-form" onSubmit={handleSubmitEval}>
+          <h3 className="eval-form-title">Nouvelle évaluation — {classes[classeId]?.nom}</h3>
+
+          <div className="eval-form-grid">
+            <div className="eval-field">
+              <label>Nom de l'évaluation *</label>
+              <input type="text" placeholder="ex: Questions No et Moi" value={form.nom}
+                onChange={e => setForm(f=>({...f,nom:e.target.value}))} required />
+            </div>
+            <div className="eval-field">
+              <label>Matière *</label>
+              <select value={form.matiere} onChange={e => setForm(f=>({...f,matiere:e.target.value}))} required>
+                <option value="">— Choisir —</option>
+                {MATIERES.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+            <div className="eval-field">
+              <label>Type</label>
+              <select value={form.type} onChange={e => setForm(f=>({...f,type:e.target.value}))}>
+                {TYPES_EVAL.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div className="eval-field">
+              <label>Date</label>
+              <input type="date" value={form.date} onChange={e => setForm(f=>({...f,date:e.target.value}))} />
+            </div>
+          </div>
+
+          {/* Notes de tous les élèves */}
+          <div className="eval-notes-section">
+            <h4>Notes des élèves</h4>
+            <div className="eval-notes-grid">
+              {elevesClasse.map(eleve => (
+                <div key={eleve.id} className="eval-note-row">
+                  <span className="eval-eleve-name">{eleve.prenom} {eleve.nom}</span>
+                  <input type="text" placeholder="—" className="eval-note-input"
+                    value={form.notes[eleve.id] || ""}
+                    onChange={e => setForm(f => ({ ...f, notes: { ...f.notes, [eleve.id]: e.target.value } }))} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Compétences */}
+          <div className="eval-comp-section">
+            <h4>Compétences <span className="optional">(optionnel)</span></h4>
+            <div className="eval-comp-add">
+              <input type="text" placeholder="Intitulé (ex: Lire)" value={compInput.label}
+                onChange={e => setCompInput(c=>({...c,label:e.target.value}))} />
+              <input type="text" placeholder="Description (ex: Contrôler sa compréhension...)" value={compInput.desc}
+                onChange={e => setCompInput(c=>({...c,desc:e.target.value}))} />
+              <button type="button" className="btn-add-note" onClick={addComp}>+ Ajouter</button>
+            </div>
+            {form.competences.map((c,i) => (
+              <div key={i} className="comp-chip">
+                <span>{c.label} {c.desc && `— ${c.desc}`}</span>
+                <button type="button" onClick={() => setForm(f=>({...f,competences:f.competences.filter((_,j)=>j!==i)}))}>×</button>
+              </div>
+            ))}
+          </div>
+
+          <div className="eval-form-footer">
+            <button type="submit" className="btn-primary-sm" disabled={saving}>
+              {saving ? "Enregistrement..." : "✓ Enregistrer l'évaluation"}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* ── Vue élève / vue prof ── */}
+      {!targetEleveId && canEdit && (
+        <div className="empty-state"><span className="empty-icon">👆</span><p>Sélectionnez un élève pour voir ses notes</p></div>
+      )}
+
+      {/* Vue ANNÉE */}
+      {isAnnee && targetEleveId && (
+        <div className="notes-card">
+          <table className="notes-table">
+            <thead><tr><th>Trimestre</th><th>Moyenne générale</th></tr></thead>
+            <tbody>
+              {["t1","t2","t3"].map(tid => {
+                const rels = TRIMESTRES.find(t=>t.id===tid)?.releves||[];
+                const vals = rels.map(r=>getMoyenneEleve(targetEleveId,classeId,r.id)).filter(v=>v!=null);
+                const moy = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+                return <tr key={tid}><td>{TRIMESTRES.find(t=>t.id===tid)?.label}</td><td><strong>{fmt(moy)}</strong></td></tr>;
+              })}
+              <tr className="annee-row"><td><strong>Moyenne annuelle</strong></td><td><strong style={{color:"#1a4fa0",fontSize:17}}>{fmt(moyAnnee)}</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Vue RELEVÉ — par matière */}
+      {!isAnnee && targetEleveId && classeId && (
+        <div className="notes-card">
+          {matieresDansReleve.length === 0
+            ? <div className="empty-state"><span className="empty-icon">📭</span><p>Aucune note pour ce relevé.</p></div>
+            : <>
+              <table className="notes-table">
+                <thead>
+                  <tr>
+                    <th>Discipline</th>
+                    <th>Moy. élève</th>
+                    <th>Moy. classe</th>
+                    <th>Évaluations</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matieresDansReleve.map(mat => {
+                    const evsMat = getEvalsEleve(targetEleveId, classeId, activeReleve).filter(e=>e.matiere===mat);
+                    const moy = getMoyenneEleve(targetEleveId, classeId, activeReleve);
+                    const stats = getStatsMatiere(mat, classeId, activeReleve);
+                    const moyMat = evsMat.length ? evsMat.map(e=>parseVal(e.noteEleve)).filter(v=>!isNaN(v)) : [];
+                    const moyEleveMat = moyMat.length ? moyMat.reduce((a,b)=>a+b,0)/moyMat.length : null;
+                    return (
+                      <tr key={mat}>
+                        <td className="td-matiere">{mat}</td>
+                        <td><strong>{fmt(moyEleveMat)}</strong></td>
+                        <td className="td-muted">{stats.moyenneClasse}</td>
+                        <td>
+                          <div className="eval-chips">
+                            {evsMat.map(ev => (
+                              <button key={ev.id} className="eval-chip" onClick={() => setDetailEval(ev)}>
+                                {ev.noteEleve}
+                                {canEdit && <span className="chip-del" onClick={e=>{e.stopPropagation();deleteEval(ev.id);}}>×</span>}
+                              </button>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="moy-generale">
+                Moyenne générale : <strong>{fmt(moyGenReleve)}</strong>
+              </div>
+            </>
+          }
+        </div>
+      )}
+
+      {/* Vue prof — liste des évals du relevé */}
+      {!isAnnee && canEdit && !targetEleveId && classeId && (
+        <div className="notes-card">
+          <h3 className="card-subtitle">Évaluations saisies — {classes[classeId]?.nom}</h3>
+          {evalsReleve.length === 0
+            ? <div className="empty-state"><span className="empty-icon">📭</span><p>Aucune évaluation pour ce relevé.</p></div>
+            : <div className="eval-list">
+              {evalsReleve.map(ev => (
+                <div key={ev.id} className="eval-list-item">
+                  <div className="eval-list-left">
+                    <span className="eval-list-nom">{ev.nom}</span>
+                    <span className="eval-list-meta">{ev.matiere} · {ev.type}{ev.date ? ` · ${new Date(ev.date).toLocaleDateString("fr-FR")}` : ""}</span>
+                    <span className="eval-list-meta">{Object.keys(ev.notes||{}).length} élève(s) noté(s)</span>
+                  </div>
+                  <button className="btn-del-sm" onClick={() => deleteEval(ev.id)}>🗑 Supprimer</button>
+                </div>
+              ))}
+            </div>
+          }
+        </div>
+      )}
+
+      {/* ── Modal détail évaluation ── */}
+      {detailEval && (
+        <div className="modal-overlay" onClick={() => setDetailEval(null)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{detailEval.nom}</h2>
+              <button className="modal-close" onClick={() => setDetailEval(null)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="modal-info-grid">
+                <div className="modal-info-item"><span className="info-label">Matière</span><span>{detailEval.matiere}</span></div>
+                <div className="modal-info-item"><span className="info-label">Type</span><span>{detailEval.type}</span></div>
+                {detailEval.date && <div className="modal-info-item"><span className="info-label">Date</span><span>{new Date(detailEval.date).toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</span></div>}
+                <div className="modal-info-item"><span className="info-label">Note de l'élève</span><span className="info-note">{detailEval.noteEleve} / 20</span></div>
+              </div>
+
+              {/* Stats classe */}
+              {classeId && (() => {
+                const stats = getStatsMatiere(detailEval.matiere, classeId, activeReleve);
+                return (
+                  <div className="modal-stats">
+                    <div className="stat-item"><span className="stat-label">Moy. classe</span><strong>{stats.moyenneClasse}</strong></div>
+                    <div className="stat-item"><span className="stat-label">Min</span><strong>{stats.min}</strong></div>
+                    <div className="stat-item"><span className="stat-label">Max</span><strong>{stats.max}</strong></div>
+                  </div>
+                );
+              })()}
+
+              {/* Compétences */}
+              {detailEval.competences?.length > 0 && (
+                <div className="modal-comps">
+                  <h4>Compétences</h4>
+                  {detailEval.competences.map((c, i) => (
+                    <div key={i} className="modal-comp-row">
+                      <div className="comp-info">
+                        <strong>{c.label}</strong>
+                        {c.desc && <span className="comp-desc">{c.desc}</span>}
+                      </div>
+                      <div className="comp-niveaux">
+                        {["Non atteints","Partiellement","Atteints","Dépassés"].map(n => (
+                          <span key={n} className={`comp-niveau ${c.niveau===n?"active":""}`}>{n}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
