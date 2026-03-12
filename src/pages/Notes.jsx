@@ -3,6 +3,13 @@ import { useAuth } from "../AuthContext";
 import { useData } from "../DataContext";
 import "./Notes.css";
 
+const NIVEAUX = [
+  { id:"non",    label:"Non atteints",       color:"#ef4444" },
+  { id:"part",   label:"Partiellement",        color:"#eab308" },
+  { id:"att",    label:"Atteints",             color:"#3b82f6" },
+  { id:"dep",    label:"Dépassés",             color:"#22c55e" },
+];
+
 const MATIERES = ["Français","Mathématiques","Anglais LV1","Allemand LV2","Histoire-Géo","Sciences Vie & Terre","Physique-Chimie","Technologie","EPS","Arts Plastiques","Éducation Musicale","LCA Latin"];
 const TYPES_EVAL = ["Contrôle","Devoir maison","Interrogation","Examen blanc","TP","Oral","Projet"];
 const TRIMESTRES = [
@@ -247,9 +254,25 @@ export default function Notes() {
                       <button type="button" className="btn-add-note" onClick={addComp}>+ Ajouter</button>
                     </div>
                     {form.competences.map((c,i) => (
-                      <div key={i} className="comp-chip">
-                        <span><strong>{c.label}</strong>{c.desc ? ` — ${c.desc}` : ""}</span>
-                        <button type="button" onClick={() => setForm(f=>({...f,competences:f.competences.filter((_,j)=>j!==i)}))}>×</button>
+                      <div key={i} className="comp-chip-full">
+                        <div className="comp-chip-top">
+                          <span><strong>{c.label}</strong>{c.desc ? ` — ${c.desc}` : ""}</span>
+                          <button type="button" className="comp-del" onClick={() => setForm(f=>({...f,competences:f.competences.filter((_,j)=>j!==i)}))}>×</button>
+                        </div>
+                        <div className="comp-niveau-selector">
+                          {NIVEAUX.map(n => (
+                            <button key={n.id} type="button"
+                              className={`comp-niveau-btn ${c.niveau===n.id?"selected":""}`}
+                              style={c.niveau===n.id ? {background:n.color,borderColor:n.color,color:"white"} : {borderColor:n.color}}
+                              onClick={() => setForm(f => ({
+                                ...f,
+                                competences: f.competences.map((cc,j) => j===i ? {...cc,niveau:n.id} : cc)
+                              }))}>
+                              <span className="niveau-dot" style={{background:n.color}}/>
+                              {n.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -445,8 +468,12 @@ export default function Notes() {
                         {c.desc && <span className="comp-desc">{c.desc}</span>}
                       </div>
                       <div className="comp-niveaux">
-                        {["Non atteints","Partiellement","Atteints","Dépassés"].map(n => (
-                          <span key={n} className={`comp-niveau ${c.niveau===n?"active":""}`}>{n}</span>
+                        {NIVEAUX.map(n => (
+                          <span key={n.id} className={`comp-niveau-display ${c.niveau===n.id?"active":""}`}
+                            style={c.niveau===n.id ? {background:n.color+"22",borderColor:n.color,color:n.color} : {}}>
+                            <span className="niveau-dot" style={{background: c.niveau===n.id ? n.color : "#cbd5e1"}}/>
+                            {n.label}
+                          </span>
                         ))}
                       </div>
                     </div>
