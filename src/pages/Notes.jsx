@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useAuth } from "../AuthContext";
 import { useData } from "../DataContext";
 import "./Notes.css";
@@ -26,8 +26,11 @@ export default function Notes() {
   const canEdit = user?.role === "admin" || user?.role === "prof";
 
   // Sélection classe / élève
-  const [selectedClasse, setSelectedClasse] = useState(Object.keys(classes)[0] || "");
-  const classeId = user?.role === "eleve" ? user?.classeId : selectedClasse;
+  const [selectedClasse, setSelectedClasse] = useState("");
+  useEffect(() => {
+    if (!selectedClasse && Object.keys(classes).length > 0) setSelectedClasse(Object.keys(classes)[0]);
+  }, [classes]);
+  const classeId = user?.role === "eleve" ? (user?.classeId || "") : selectedClasse;
   const elevesClasse = accounts.filter(a => a.role === "eleve" && (!classeId || a.classeId === classeId));
   const [selectedEleve, setSelectedEleve] = useState(null);
   const targetEleveId = user?.role === "eleve" ? user.id : selectedEleve;
@@ -51,31 +54,32 @@ export default function Notes() {
 
   // Évals pour l'affichage
   const evalsReleve = useMemo(() => {
-    if (!classeId || !activeReleve) return [];
-    return getEvalsClasse(classeId, activeReleve);
+    if (!classeId || !activeReleve || !evals) return [];
+    try { return getEvalsClasse(classeId, activeReleve); } catch(e) { return []; }
   }, [evals, classeId, activeReleve]);
 
   // Matières distinctes dans ce relevé pour l'élève
   const matieresDansReleve = useMemo(() => {
-    if (!targetEleveId || !classeId || !activeReleve) return [];
-    const evs = getEvalsEleve(targetEleveId, classeId, activeReleve);
-    return [...new Set(evs.map(e => e.matiere))];
+    if (!targetEleveId || !classeId || !activeReleve || !evals) return [];
+    try { const evs = getEvalsEleve(targetEleveId, classeId, activeReleve); return [...new Set(evs.map(e => e.matiere))]; } catch(e) { return []; }
   }, [evals, targetEleveId, classeId, activeReleve]);
 
   // Moyenne générale élève sur le relevé
   const moyGenReleve = useMemo(() => {
-    if (!targetEleveId || !classeId || !activeReleve) return null;
-    return getMoyenneEleve(targetEleveId, classeId, activeReleve);
+    if (!targetEleveId || !classeId || !activeReleve || !evals) return null;
+    try { return getMoyenneEleve(targetEleveId, classeId, activeReleve); } catch(e) { return null; }
   }, [evals, targetEleveId, classeId, activeReleve]);
 
   // Moyenne générale sur l'année
   const moyAnnee = useMemo(() => {
-    if (!targetEleveId || !classeId) return null;
+    if (!targetEleveId || !classeId || !evals) return null;
+    try {
     const allVals = ["r1","r2","r3","r4","r5","r6"]
       .map(rid => getMoyenneEleve(targetEleveId, classeId, rid))
       .filter(v => v != null);
     if (!allVals.length) return null;
     return allVals.reduce((a,b)=>a+b,0)/allVals.length;
+    } catch(e) { return null; }
   }, [evals, targetEleveId, classeId]);
 
   function handleTrimestreChange(t) {
