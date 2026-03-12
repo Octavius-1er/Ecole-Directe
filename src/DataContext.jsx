@@ -10,15 +10,16 @@ function parseVal(v) {
   if (m) return (parseFloat(m[1]) / parseFloat(m[2])) * 20;
   return parseFloat(s);
 }
-function calcMoy(evals) {
-  const vals = evals.map(parseVal).filter(v => !isNaN(v));
-  if (!vals.length) return "—";
-  return (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2).replace(".", ",");
+function calcMoy(vals) {
+  const v = vals.map(parseVal).filter(v => !isNaN(v));
+  if (!v.length) return null;
+  return (v.reduce((a, b) => a + b, 0) / v.length);
 }
+function fmt(n) { return n == null ? "—" : n.toFixed(2).replace(".", ","); }
 
 export function DataProvider({ children }) {
   const [classes,     setClasses]     = useState({});
-  const [notesPE,     setNotesPE]     = useState({});
+  const [evals,       setEvals]       = useState([]); // toutes les évaluations
   const [devoirsPC,   setDevoirsPC]   = useState({});
   const [edtPC,       setEdtPC]       = useState({});
   const [absencesPE,  setAbsencesPE]  = useState({});
@@ -27,18 +28,16 @@ export function DataProvider({ children }) {
   const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
-    let loaded = 0;
-    const total = 7;
+    let loaded = 0; const total = 7;
     function tick() { loaded++; if (loaded >= total) setLoading(false); }
-
     const unsubs = [
-      onSnapshot(doc(db, "app", "classes"),     s => { setClasses(s.exists()     ? s.data().data || {} : {}); tick(); }),
-      onSnapshot(doc(db, "app", "notesPE"),     s => { setNotesPE(s.exists()     ? s.data().data || {} : {}); tick(); }),
-      onSnapshot(doc(db, "app", "devoirsPC"),   s => { setDevoirsPC(s.exists()   ? s.data().data || {} : {}); tick(); }),
-      onSnapshot(doc(db, "app", "edtPC"),       s => { setEdtPC(s.exists()       ? s.data().data || {} : {}); tick(); }),
-      onSnapshot(doc(db, "app", "absencesPE"),  s => { setAbsencesPE(s.exists()  ? s.data().data || {} : {}); tick(); }),
-      onSnapshot(doc(db, "app", "punitionsPE"), s => { setPunitionsPE(s.exists() ? s.data().data || {} : {}); tick(); }),
-      onSnapshot(doc(db, "app", "messages"),    s => { setMessages(s.exists()    ? s.data().data || [] : []); tick(); }),
+      onSnapshot(doc(db,"app","classes"),     s => { setClasses(s.exists()     ? s.data().data||{} : {}); tick(); }),
+      onSnapshot(doc(db,"app","evals"),       s => { setEvals(s.exists()       ? s.data().data||[] : []); tick(); }),
+      onSnapshot(doc(db,"app","devoirsPC"),   s => { setDevoirsPC(s.exists()   ? s.data().data||{} : {}); tick(); }),
+      onSnapshot(doc(db,"app","edtPC"),       s => { setEdtPC(s.exists()       ? s.data().data||{} : {}); tick(); }),
+      onSnapshot(doc(db,"app","absencesPE"),  s => { setAbsencesPE(s.exists()  ? s.data().data||{} : {}); tick(); }),
+      onSnapshot(doc(db,"app","punitionsPE"), s => { setPunitionsPE(s.exists() ? s.data().data||{} : {}); tick(); }),
+      onSnapshot(doc(db,"app","messages"),    s => { setMessages(s.exists()    ? s.data().data||[] : []); tick(); }),
     ];
     return () => unsubs.forEach(u => u());
   }, []);
@@ -49,9 +48,8 @@ export function DataProvider({ children }) {
 
   // ── CLASSES ──
   async function addClass(nom, niveau) {
-    const id   = "c" + Date.now();
-    const next = { ...classes, [id]: { id, nom, niveau } };
-    await save("classes", next);
+    const id = "c" + Date.now();
+    await save("classes", { ...classes, [id]: { id, nom, niveau } });
     return id;
   }
   async function updateClass(id, updates) {
@@ -62,121 +60,109 @@ export function DataProvider({ children }) {
     await save("classes", next);
   }
 
-  // ── NOTES ──
-  function getNotesEleve(eleveId, releveId) { return notesPE[eleveId]?.[releveId] || null; }
+  // ── ÉVALUATIONS ──
+  // eval = { id, nom, matiere, type, date, releveId, classeId, notes:{[eleveId]:valeur}, competences:[{label,desc,niveau}] }
 
-  async function addNoteEleve(eleveId, releveId, matiere, valeur, profLabel) {
-    const ed  = notesPE[eleveId] || {};
-    const rel = ed[releveId] || { conseil: "", notes: [], competences: [] };
-    let notes = rel.notes;
-    if (notes.find(n => n.matiere === matiere)) {
-      notes = notes.map(n => {
-        if (n.matiere !== matiere) return n;
-        const ev = [...n.evals, String(valeur)];
-        return { ...n, evals: ev, moyenne: calcMoy(ev) };
-      });
-    } else {
-      notes = [...notes, {
-        matiere, prof: profLabel || "",
-        evals: [String(valeur)],
-        moyenne: calcMoy([String(valeur)])
-      }];
-    }
-    await save("notesPE", { ...notesPE, [eleveId]: { ...ed, [releveId]: { ...rel, notes } } });
+  function getEvalsClasse(classeId, releveId) {
+    return evals.filter(e => e.classeId === classeId && e.releveId === releveId);
   }
 
-  async function removeNoteEleve(eleveId, releveId, matiere, idx) {
-    const rel = notesPE[eleveId]?.[releveId]; if (!rel) return;
-    const notes = rel.notes.map(n => {
-      if (n.matiere !== matiere) return n;
-      const ev = n.evals.filter((_, i) => i !== idx);
-      return { ...n, evals: ev, moyenne: calcMoy(ev) };
-    });
-    await save("notesPE", { ...notesPE, [eleveId]: { ...notesPE[eleveId], [releveId]: { ...rel, notes } } });
+  function getEvalsEleve(eleveId, classeId, releveId) {
+    return evals
+      .filter(e => e.classeId === classeId && e.releveId === releveId && e.notes?.[eleveId] != null)
+      .map(e => ({ ...e, noteEleve: e.notes[eleveId] }));
   }
 
-  function computeClassStats(eleveIds, releveId) {
-    const map = {};
-    eleveIds.forEach(eid => {
-      const rel = notesPE[eid]?.[releveId]; if (!rel) return;
-      rel.notes.forEach(n => {
-        const v = parseFloat(n.moyenne.replace(",", ".")); if (isNaN(v)) return;
-        if (!map[n.matiere]) map[n.matiere] = [];
-        map[n.matiere].push(v);
-      });
-    });
-    const res = {};
-    Object.entries(map).forEach(([mat, vals]) => {
-      res[mat] = {
-        moyenneClasse: (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2).replace(".",","),
-        min: Math.min(...vals).toFixed(2).replace(".",","),
-        max: Math.max(...vals).toFixed(2).replace(".",","),
-      };
-    });
-    return res;
+  // Calcule la moyenne d'un élève pour un relevé à partir des évals
+  function getMoyenneEleve(eleveId, classeId, releveId) {
+    const ev = getEvalsEleve(eleveId, classeId, releveId);
+    if (!ev.length) return null;
+    return calcMoy(ev.map(e => e.noteEleve));
+  }
+
+  // Calcule les stats d'une matière pour une classe/relevé
+  function getStatsMatiere(matiere, classeId, releveId) {
+    const evsMat = evals.filter(e => e.classeId === classeId && e.releveId === releveId && e.matiere === matiere);
+    const allNotes = evsMat.flatMap(e => Object.values(e.notes || {}).map(parseVal).filter(v => !isNaN(v)));
+    if (!allNotes.length) return { moyenneClasse: "—", min: "—", max: "—" };
+    return {
+      moyenneClasse: fmt(calcMoy(allNotes.map(String))),
+      min: fmt(Math.min(...allNotes)),
+      max: fmt(Math.max(...allNotes)),
+    };
+  }
+
+  async function addEval(evalData) {
+    const newEval = { ...evalData, id: Date.now().toString() };
+    await save("evals", [...evals, newEval]);
+    return newEval.id;
+  }
+
+  async function updateEval(id, updates) {
+    await save("evals", evals.map(e => e.id === id ? { ...e, ...updates } : e));
+  }
+
+  async function deleteEval(id) {
+    await save("evals", evals.filter(e => e.id !== id));
   }
 
   // ── DEVOIRS ──
   function getDevoirsClasse(cid) { return devoirsPC[cid] || {}; }
-
   async function addDevoirClasse(cid, day, label, item) {
-    const cd = devoirsPC[cid] || {}, dd = cd[day] || { label, items: [] };
-    await save("devoirsPC", { ...devoirsPC, [cid]: { ...cd, [day]: { ...dd, items: [...dd.items, item] } } });
+    const cd = devoirsPC[cid]||{}, dd = cd[day]||{label,items:[]};
+    await save("devoirsPC", {...devoirsPC,[cid]:{...cd,[day]:{...dd,items:[...dd.items,item]}}});
   }
   async function removeDevoirClasse(cid, day, idx) {
-    const cd = devoirsPC[cid] || {}, dd = cd[day]; if (!dd) return;
-    await save("devoirsPC", { ...devoirsPC, [cid]: { ...cd, [day]: { ...dd, items: dd.items.filter((_,i)=>i!==idx) } } });
+    const cd = devoirsPC[cid]||{}, dd = cd[day]; if(!dd) return;
+    await save("devoirsPC", {...devoirsPC,[cid]:{...cd,[day]:{...dd,items:dd.items.filter((_,i)=>i!==idx)}}});
   }
   async function updateDevoirEffectue(cid, day, idx, val) {
-    const cd = devoirsPC[cid] || {}, dd = cd[day]; if (!dd) return;
-    const items = dd.items.map((it,i) => i===idx ? {...it,effectue:val} : it);
-    await save("devoirsPC", { ...devoirsPC, [cid]: { ...cd, [day]: { ...dd, items } } });
+    const cd = devoirsPC[cid]||{}, dd = cd[day]; if(!dd) return;
+    await save("devoirsPC", {...devoirsPC,[cid]:{...cd,[day]:{...dd,items:dd.items.map((it,i)=>i===idx?{...it,effectue:val}:it)}}});
   }
 
   // ── EDT ──
   function getEdtClasse(cid) { return edtPC[cid] || {}; }
-
   async function addEdtItem(cid, day, label, item) {
-    const ce = edtPC[cid] || {}, dd = ce[day] || { label, items: [] };
+    const ce = edtPC[cid]||{}, dd = ce[day]||{label,items:[]};
     const items = [...dd.items, item].sort((a,b)=>a.heure.localeCompare(b.heure));
-    await save("edtPC", { ...edtPC, [cid]: { ...ce, [day]: { ...dd, items } } });
+    await save("edtPC", {...edtPC,[cid]:{...ce,[day]:{...dd,items}}});
   }
   async function removeEdtItem(cid, day, idx) {
-    const ce = edtPC[cid] || {}, dd = ce[day]; if (!dd) return;
-    await save("edtPC", { ...edtPC, [cid]: { ...ce, [day]: { ...dd, items: dd.items.filter((_,i)=>i!==idx) } } });
+    const ce = edtPC[cid]||{}, dd = ce[day]; if(!dd) return;
+    await save("edtPC", {...edtPC,[cid]:{...ce,[day]:{...dd,items:dd.items.filter((_,i)=>i!==idx)}}});
   }
 
   // ── ABSENCES / PUNITIONS ──
   function getAbsencesEleve(eid)  { return absencesPE[eid]  || []; }
   function getPunitionsEleve(eid) { return punitionsPE[eid] || []; }
-
   async function addAbsence(eid, a) {
-    await save("absencesPE", { ...absencesPE, [eid]: [...(absencesPE[eid]||[]), {...a, id:Date.now().toString()}] });
+    await save("absencesPE", {...absencesPE,[eid]:[...(absencesPE[eid]||[]),{...a,id:Date.now().toString()}]});
   }
   async function removeAbsence(eid, id) {
-    await save("absencesPE", { ...absencesPE, [eid]: (absencesPE[eid]||[]).filter(a=>a.id!==id) });
+    await save("absencesPE", {...absencesPE,[eid]:(absencesPE[eid]||[]).filter(a=>a.id!==id)});
   }
   async function addPunition(eid, p) {
-    await save("punitionsPE", { ...punitionsPE, [eid]: [...(punitionsPE[eid]||[]), {...p, id:Date.now().toString()}] });
+    await save("punitionsPE", {...punitionsPE,[eid]:[...(punitionsPE[eid]||[]),{...p,id:Date.now().toString()}]});
   }
   async function removePunition(eid, id) {
-    await save("punitionsPE", { ...punitionsPE, [eid]: (punitionsPE[eid]||[]).filter(p=>p.id!==id) });
+    await save("punitionsPE", {...punitionsPE,[eid]:(punitionsPE[eid]||[]).filter(p=>p.id!==id)});
   }
 
   // ── MESSAGES ──
   async function sendMessage(msg) {
-    await save("messages", [{ ...msg, id: Date.now().toString(), lu: false }, ...messages]);
+    await save("messages", [{...msg,id:Date.now().toString(),lu:false},...messages]);
   }
   async function markRead(id) {
-    await save("messages", messages.map(m => m.id===id ? {...m,lu:true} : m));
+    await save("messages", messages.map(m=>m.id===id?{...m,lu:true}:m));
   }
   async function deleteMessage(id) {
-    await save("messages", messages.filter(m => m.id!==id));
+    await save("messages", messages.filter(m=>m.id!==id));
   }
 
   if (loading) return (
-    <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100vh", flexDirection:"column", gap:16, fontFamily:"Outfit,sans-serif", color:"#1a4fa0" }}>
-      <div style={{ width:40, height:40, border:"4px solid #bfdbfe", borderTop:"4px solid #1a4fa0", borderRadius:"50%", animation:"spin 0.8s linear infinite" }}/>
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",flexDirection:"column",gap:16,fontFamily:"Outfit,sans-serif",color:"#1a4fa0"}}>
+      <div style={{width:40,height:40,border:"4px solid #bfdbfe",borderTop:"4px solid #1a4fa0",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>
       <p style={{fontWeight:600}}>Connexion en cours...</p>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
@@ -185,7 +171,7 @@ export function DataProvider({ children }) {
   return (
     <DataContext.Provider value={{
       classes, addClass, updateClass, deleteClass,
-      getNotesEleve, addNoteEleve, removeNoteEleve, computeClassStats,
+      evals, getEvalsClasse, getEvalsEleve, getMoyenneEleve, getStatsMatiere, addEval, updateEval, deleteEval,
       getDevoirsClasse, addDevoirClasse, removeDevoirClasse, updateDevoirEffectue,
       getEdtClasse, addEdtItem, removeEdtItem,
       getAbsencesEleve, getPunitionsEleve, addAbsence, removeAbsence, addPunition, removePunition,
