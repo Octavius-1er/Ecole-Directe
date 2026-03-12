@@ -25,7 +25,7 @@ function fmt(n) {
 
 export default function Notes() {
   const { user, accounts } = useAuth();
-  const { classes, evals, getEvalsEleve, getEvalsClasse, getMoyenneEleve, getStatsMatiere, addEval, deleteEval } = useData();
+  const { classes, evals, getEvalsEleve, getEvalsClasse, getMoyenneEleve, getStatsMatiere, addEval, deleteEval, periode } = useData();
   const canEdit = user?.role === "admin" || user?.role === "prof";
 
   // ── Classe sélectionnée ──
@@ -43,8 +43,13 @@ export default function Notes() {
   const targetEleveId = user?.role === "eleve" ? user.id : selectedEleve;
 
   // ── Trimestre / relevé ──
-  const [activeTrimestre, setActiveTrimestre] = useState("t1");
-  const [activeReleve, setActiveReleve] = useState("r1");
+  const [activeTrimestre, setActiveTrimestre] = useState(periode?.trimestreId || "t3");
+  const [activeReleve, setActiveReleve] = useState(periode?.releveId || "r5");
+  // Sync si la période change (admin peut changer pendant la session)
+  useEffect(() => {
+    if (periode?.trimestreId) setActiveTrimestre(periode.trimestreId);
+    if (periode?.releveId) setActiveReleve(periode.releveId);
+  }, [periode?.releveId]);
   const isAnnee = activeTrimestre === "annee";
   const trimestre = TRIMESTRES.find(t => t.id === activeTrimestre);
 
@@ -160,12 +165,25 @@ export default function Notes() {
           ) : !isAnnee ? (
             <>
               {/* Bouton saisir éval */}
-              <div className="notes-actions">
-                <button className="btn-add-note" onClick={() => setShowForm(v => !v)}>
-                  {showForm ? "✕ Annuler" : "➕ Saisir une évaluation"}
-                </button>
+              {(() => {
+                const RELEVES_ORDER = ["r1","r2","r3","r4","r5","r6"];
+                const isCurrentReleve = activeReleve === (periode?.releveId || "r5");
+                const isPastReleve = RELEVES_ORDER.indexOf(activeReleve) < RELEVES_ORDER.indexOf(periode?.releveId || "r5");
+                return (
+                  <div className="notes-actions">
+                    {isCurrentReleve ? (
+                      <button className="btn-add-note" onClick={() => setShowForm(v => !v)}>
+                        {showForm ? "✕ Annuler" : "➕ Saisir une évaluation"}
+                      </button>
+                    ) : isPastReleve ? (
+                      <div className="releve-locked">🔒 Relevé clôturé — saisie impossible</div>
+                    ) : (
+                      <div className="releve-locked future">📅 Ce relevé n'est pas encore ouvert</div>
+                    )}
                 {msg && <span className="add-success">{msg}</span>}
-              </div>
+                  </div>
+                );
+              })()} 
 
               {/* ── FORMULAIRE SAISIE ÉVAL ── */}
               {showForm && (
