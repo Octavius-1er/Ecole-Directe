@@ -1,285 +1,240 @@
-import React, { useState, useMemo } from "react";
-import { useAuth } from "../AuthContext";
-import { useData } from "../DataContext";
-import "./Notes.css";
+.notes-container { padding: 28px 20px; animation: fadeUp 0.3s ease; max-width: 1000px; }
+.notes-title { font-size: 24px; color: #1a4fa0; font-weight: 800; margin-bottom: 20px; }
 
-const MATIERES=["Français","Mathématiques","Anglais LV1","Allemand LV2","Histoire-Géo","Sciences Vie & Terre","Physique-Chimie","Technologie","EPS","Arts Plastiques","Éducation Musicale","LCA Latin"];
-const TRIMESTRES = [
-  { id:"t1", label:"1er Trimestre",  releves:[{id:"r1",label:"Relevé 1"},{id:"r2",label:"Relevé 2"}] },
-  { id:"t2", label:"2ème Trimestre", releves:[{id:"r3",label:"Relevé 3"},{id:"r4",label:"Relevé 4"}] },
-  { id:"t3", label:"3ème Trimestre", releves:[{id:"r5",label:"Relevé 5"},{id:"r6",label:"Relevé 6"}] },
-  { id:"annee", label:"Année",       releves:[] },
-];
-
-function parseVal(v){
-  const s=String(v).replace(",",".");
-  const m=s.match(/^([\d.]+)\/([\d.]+)$/);
-  if(m) return(parseFloat(m[1])/parseFloat(m[2]))*20;
-  return parseFloat(s);
+/* ── Sélecteurs ── */
+.notes-selector-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: white; border-radius: 10px; padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px;
+}
+.selector-group { display: flex; flex-direction: column; gap: 3px; }
+.selector-group label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+.selector-group select {
+  padding: 7px 12px; border: 1.5px solid #dde3ef; border-radius: 7px;
+  font-size: 14px; font-family: 'Outfit', sans-serif; outline: none; min-width: 160px;
+}
+.selector-group select:focus { border-color: #1a4fa0; }
+.selector-eleve-chip {
+  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
+  border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 600;
 }
 
-function computeAnnee(notesPE, eleveId){
-  const releves=["r1","r2","r3","r4","r5","r6"].map(id=>notesPE?.[eleveId]?.[id]).filter(Boolean);
-  if(!releves.length) return null;
-  const map={};
-  releves.forEach(r=>r.notes.forEach(n=>{
-    if(!map[n.matiere]) map[n.matiere]={matiere:n.matiere,prof:n.prof,sum:0,cnt:0,evals:[]};
-    const v=parseFloat(n.moyenne.replace(",","."));
-    if(!isNaN(v)){map[n.matiere].sum+=v;map[n.matiere].cnt+=1;}
-    map[n.matiere].evals.push(...n.evals);
-  }));
-  const notes=Object.values(map).map(m=>({
-    matiere:m.matiere,prof:m.prof,evals:m.evals,
-    moyenne:m.cnt?(m.sum/m.cnt).toFixed(2).replace(".",","):"—"
-  }));
-  const vals=notes.map(n=>parseFloat(n.moyenne.replace(",","."))).filter(v=>!isNaN(v));
-  const mg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2).replace(".",","):"—";
-  return{conseil:"Moyenne annuelle — tous relevés confondus",notes,competences:releves[0]?.competences||[],moyenneGenerale:mg,moyenneClasse:"—",moyenneMin:"—",moyenneMax:"—"};
+/* ── Onglets trimestres ── */
+.notes-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.notes-tab {
+  padding: 8px 16px; border: 1.5px solid #dde3ef; background: white;
+  border-radius: 8px; font-size: 13px; font-weight: 600; color: #475569;
+  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
 }
+.notes-tab.active { background: #1a4fa0; color: white; border-color: #1a4fa0; }
+.notes-tab:hover:not(.active) { background: #f0f4fb; }
 
-function EmptyState({label}){
-  return<div className="empty-state"><span className="empty-icon">📭</span><p>Aucune donnée pour <strong>{label}</strong></p></div>;
+/* ── Relevés ── */
+.notes-releves { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.releve-tab {
+  padding: 5px 14px; border: 1.5px solid #dde3ef; background: white;
+  border-radius: 20px; font-size: 12px; font-weight: 600; color: #64748b;
+  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
 }
+.releve-tab.active { background: #e0f2fe; color: #0369a1; border-color: #7dd3fc; }
 
-export default function Notes(){
-  const {user,accounts}=useAuth();
-  const {classes,getNotesEleve,addNoteEleve,removeNoteEleve,computeClassStats}=useData();
-  const canEdit=user?.role==="admin"||user?.role==="prof";
+/* ── Actions ── */
+.notes-actions { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
 
-  // Sélecteur de classe (prof/admin)
-  const [selectedClasse, setSelectedClasse]=useState(Object.keys(classes)[0]||"");
-  // Sélecteur d'élève (prof/admin : voir notes d'un élève)
-  const elevesDeClasse=accounts.filter(a=>a.role==="eleve"&&(!selectedClasse||a.classeId===selectedClasse));
-  const [selectedEleve, setSelectedEleve]=useState(null);
+/* ── Formulaire éval ── */
+.eval-form {
+  background: white; border-radius: 14px; padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10); margin-bottom: 20px;
+  border: 1.5px solid #bfdbfe;
+}
+.eval-form-title {
+  font-size: 16px; font-weight: 800; color: #1a4fa0; margin-bottom: 18px;
+  padding-bottom: 12px; border-bottom: 1.5px solid #f1f5f9;
+}
+.eval-form-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px; margin-bottom: 20px;
+}
+.eval-field { display: flex; flex-direction: column; gap: 5px; }
+.eval-field label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+.eval-field input, .eval-field select {
+  padding: 9px 12px; border: 1.5px solid #dde3ef; border-radius: 8px;
+  font-size: 14px; font-family: 'Outfit', sans-serif; outline: none; transition: 0.15s;
+}
+.eval-field input:focus, .eval-field select:focus { border-color: #1a4fa0; }
 
-  // Élève courant : si élève connecté → lui-même ; si prof/admin → selectedEleve
-  const targetEleveId = user?.role==="eleve" ? user.id : selectedEleve;
-  const targetAccount = accounts.find(a=>a.id===targetEleveId);
+/* Notes des élèves */
+.eval-notes-section { margin-bottom: 20px; }
+.eval-notes-section h4 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.eval-notes-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px;
+}
+.eval-note-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: #f8faff; border-radius: 8px; padding: 8px 12px;
+  border: 1.5px solid #e2e8f0;
+}
+.eval-eleve-name { font-size: 13px; font-weight: 600; color: #334155; flex: 1; }
+.eval-note-input {
+  width: 70px; padding: 6px 10px; border: 1.5px solid #dde3ef; border-radius: 7px;
+  font-size: 14px; font-family: 'Outfit', sans-serif; text-align: center; outline: none;
+  font-weight: 700; color: #1a4fa0;
+}
+.eval-note-input:focus { border-color: #1a4fa0; background: #eff6ff; }
 
-  const [activeTrimestre,setActiveTrimestre]=useState("t1");
-  const [activeReleve,setActiveReleve]=useState("r2");
-  const [activeTab,setActiveTab]=useState("evaluations");
-  const [showAdd,setShowAdd]=useState(false);
-  const [newNote,setNewNote]=useState({matiere:"",valeur:""});
-  const [msg,setMsg]=useState("");
+/* Compétences */
+.eval-comp-section { margin-bottom: 20px; }
+.eval-comp-section h4 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.optional { font-weight: 400; color: #94a3b8; text-transform: none; font-size: 12px; }
+.eval-comp-add { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.eval-comp-add input {
+  flex: 1; min-width: 140px; padding: 8px 12px; border: 1.5px solid #dde3ef; border-radius: 7px;
+  font-size: 13px; font-family: 'Outfit', sans-serif; outline: none;
+}
+.eval-comp-add input:focus { border-color: #1a4fa0; }
+.comp-chip {
+  display: flex; align-items: center; gap: 8px; justify-content: space-between;
+  background: #f0f4fb; border-radius: 8px; padding: 6px 12px; font-size: 13px; margin-bottom: 6px;
+}
+.comp-chip button { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 16px; }
 
-  const trimestre=TRIMESTRES.find(t=>t.id===activeTrimestre);
-  const isAnnee=activeTrimestre==="annee";
+.eval-form-footer { display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1.5px solid #f1f5f9; }
 
-  // Notes de l'élève cible — reconstruit via getNotesEleve
-  const allNotesPE = (() => {
-    // On a besoin d'accéder à notesPE brut pour computeAnnee — on le reconstruit via getNotesEleve
-    const result={};
-    ["r1","r2","r3","r4","r5","r6"].forEach(rid=>{
-      const r=getNotesEleve(targetEleveId,rid);
-      if(r) result[rid]=r;
-    });
-    return result;
-  })();
+/* ── Table notes ── */
+.notes-card {
+  background: white; border-radius: 14px; padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px;
+}
+.card-subtitle { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 14px; }
+.notes-table { width: 100%; border-collapse: collapse; }
+.notes-table th {
+  text-align: left; font-size: 11px; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+.notes-table td { padding: 10px 12px; border-bottom: 1px solid #f8faff; font-size: 14px; }
+.notes-table tr:last-child td { border-bottom: none; }
+.td-matiere { font-weight: 700; color: #1e293b; }
+.td-muted { color: #94a3b8; font-size: 13px; }
+.annee-row td { background: #f0f4fb; border-radius: 8px; }
 
-  const current = isAnnee
-    ? computeAnnee({[targetEleveId]:allNotesPE},targetEleveId)
-    : (targetEleveId ? getNotesEleve(targetEleveId, activeReleve) : null);
+/* Chips d'éval */
+.eval-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.eval-chip {
+  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
+  border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.eval-chip:hover { background: #dbeafe; transform: translateY(-1px); }
+.chip-del {
+  color: #dc2626; font-size: 14px; line-height: 1;
+  padding: 0 2px; border-radius: 50%;
+}
+.chip-del:hover { background: #fee2e2; }
 
-  // Stats de classe pour le relevé actif
-  const eleveIdsClasse = accounts.filter(a=>a.role==="eleve"&&a.classeId===selectedClasse).map(a=>a.id);
-  const classStats = useMemo(()=>{
-    if(isAnnee||!activeReleve) return{};
-    return computeClassStats(eleveIdsClasse,activeReleve);
-  },[eleveIdsClasse,activeReleve,isAnnee]);
+.moy-generale {
+  text-align: right; font-size: 14px; color: #64748b;
+  padding-top: 12px; margin-top: 8px; border-top: 1.5px solid #f1f5f9;
+}
+.moy-generale strong { font-size: 18px; color: #1a4fa0; margin-left: 8px; }
 
-  const activeLabel=isAnnee?"Année":(trimestre?.releves.find(r=>r.id===activeReleve)?.label||trimestre?.label);
+/* Liste évals prof */
+.eval-list { display: flex; flex-direction: column; gap: 10px; }
+.eval-list-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; background: #f8faff; border-radius: 10px;
+  border: 1.5px solid #e2e8f0; flex-wrap: wrap;
+}
+.eval-list-left { display: flex; flex-direction: column; gap: 3px; }
+.eval-list-nom { font-size: 15px; font-weight: 700; color: #1e293b; }
+.eval-list-meta { font-size: 12px; color: #94a3b8; }
 
-  function handleAddNote(e){
-    e.preventDefault();
-    if(!newNote.matiere||!newNote.valeur||!targetEleveId) return;
-    addNoteEleve(targetEleveId,activeReleve,newNote.matiere,newNote.valeur,`${user.prenom} ${user.nom}`);
-    setMsg(`Note ${newNote.valeur} ajoutée ✓`);
-    setNewNote({matiere:"",valeur:""});
-    setTimeout(()=>setMsg(""),3000);
-  }
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-card {
+  background: white; border-radius: 16px; width: 100%; max-width: 560px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px; border-bottom: 1.5px solid #f1f5f9;
+}
+.modal-header h2 { font-size: 18px; font-weight: 800; color: #1a4fa0; margin: 0; }
+.modal-close {
+  background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px;
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #64748b; transition: 0.15s;
+}
+.modal-close:hover { background: #fee2e2; color: #dc2626; }
+.modal-body { padding: 20px 24px; }
+.modal-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.modal-info-item { display: flex; flex-direction: column; gap: 3px; }
+.info-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+.info-note { font-size: 22px; font-weight: 800; color: #1a4fa0; }
+.modal-stats {
+  display: flex; gap: 12px; background: #f0f4fb; border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 16px;
+}
+.stat-item { display: flex; flex-direction: column; gap: 3px; flex: 1; text-align: center; }
+.stat-label { font-size: 11px; color: #94a3b8; font-weight: 600; }
+.stat-item strong { font-size: 16px; color: #1a4fa0; }
+.modal-comps h4 { font-size: 13px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 12px; }
+.modal-comp-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap;
+}
+.comp-info { display: flex; flex-direction: column; gap: 3px; }
+.comp-info strong { font-size: 14px; color: #1e293b; }
+.comp-desc { font-size: 12px; color: #94a3b8; }
+.comp-niveaux { display: flex; gap: 6px; flex-wrap: wrap; }
+.comp-niveau {
+  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  background: #f1f5f9; color: #94a3b8; border: 1.5px solid transparent;
+}
+.comp-niveau.active { background: #fef3c7; color: #d97706; border-color: #fcd34d; }
 
-  function handleTrimestreChange(t){
-    setActiveTrimestre(t.id);
-    if(t.releves.length>0) setActiveReleve(t.releves[0].id);
-  }
+/* ── Empty states ── */
+.empty-state {
+  text-align: center; padding: 40px 20px; color: #94a3b8;
+}
+.empty-icon { font-size: 40px; display: block; margin-bottom: 12px; }
 
-  return(
-    <div className="notes-container">
-      <h1 className="notes-title">Notes et Moyennes</h1>
+/* ── Boutons ── */
+.btn-add-note {
+  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'Outfit', sans-serif; transition: 0.15s;
+}
+.btn-add-note:hover { background: #dbeafe; }
+.btn-primary-sm {
+  background: #1a4fa0; color: white; border: none; padding: 10px 24px;
+  border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+}
+.btn-primary-sm:hover { opacity: 0.88; }
+.btn-primary-sm:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-del-sm {
+  background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px;
+  border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600;
+  white-space: nowrap;
+}
+.btn-del-sm:hover { background: #fecaca; }
+.add-success { color: #16a34a; font-size: 13px; font-weight: 600; }
 
-      {/* ── Sélecteur classe + élève (prof/admin) ── */}
-      {canEdit&&(
-        <div className="notes-selector-bar">
-          <div className="selector-group">
-            <label>Classe</label>
-            <select value={selectedClasse} onChange={e=>{setSelectedClasse(e.target.value);setSelectedEleve(null);}}>
-              <option value="">— Choisir —</option>
-              {Object.values(classes).map(c=><option key={c.id} value={c.id}>{c.nom}</option>)}
-            </select>
-          </div>
-          <div className="selector-group">
-            <label>Élève</label>
-            <select value={selectedEleve||""} onChange={e=>setSelectedEleve(e.target.value||null)} disabled={!selectedClasse}>
-              <option value="">— Choisir un élève —</option>
-              {elevesDeClasse.map(e=><option key={e.id} value={e.id}>{e.prenom} {e.nom}</option>)}
-            </select>
-          </div>
-          {targetAccount&&<div className="selector-eleve-chip">👤 {targetAccount.prenom} {targetAccount.nom}</div>}
-        </div>
-      )}
-
-      {/* ── Trimestres ── */}
-      <div className="trimestre-tabs">
-        {TRIMESTRES.map(t=>(
-          <button key={t.id} className={`trimestre-tab ${activeTrimestre===t.id?"active":""}`} onClick={()=>handleTrimestreChange(t)}>{t.label}</button>
-        ))}
-      </div>
-
-      {trimestre?.releves.length>0&&(
-        <div className="releve-tabs">
-          {trimestre.releves.map(r=>(
-            <button key={r.id} className={`releve-tab ${activeReleve===r.id?"active":""}`} onClick={()=>setActiveReleve(r.id)}>{r.label}</button>
-          ))}
-        </div>
-      )}
-
-      {current&&<p className="conseil-info">{current.conseil}</p>}
-
-      <div className="notes-topbar">
-        <div className="sub-tabs">
-          {[{id:"evaluations",label:"Evaluations"},{id:"moyennes",label:"Moyennes"},{id:"competences",label:"Compétences"},{id:"graphiques",label:"Graphiques"}].map(tab=>(
-            <button key={tab.id} className={`sub-tab ${activeTab===tab.id?"active":""}`} onClick={()=>setActiveTab(tab.id)}>{tab.label}</button>
-          ))}
-        </div>
-        {canEdit&&!isAnnee&&targetEleveId&&(
-          <button className="btn-add-note" onClick={()=>setShowAdd(v=>!v)}>
-            {showAdd?"✕ Fermer":"➕ Ajouter une note"}
-          </button>
-        )}
-      </div>
-
-      {/* ── Formulaire ajout ── */}
-      {canEdit&&showAdd&&!isAnnee&&targetEleveId&&(
-        <form className="add-note-form" onSubmit={handleAddNote}>
-          <select value={newNote.matiere} onChange={e=>setNewNote(p=>({...p,matiere:e.target.value}))} required>
-            <option value="">— Matière —</option>
-            {MATIERES.map(m=><option key={m} value={m}>{m}</option>)}
-          </select>
-          <input type="text" placeholder="Note (ex: 15 ou 8/10)" value={newNote.valeur} onChange={e=>setNewNote(p=>({...p,valeur:e.target.value}))} required />
-          <button type="submit" className="btn-primary-sm">Ajouter</button>
-          {msg&&<span className="add-success">{msg}</span>}
-        </form>
-      )}
-
-      {!targetEleveId&&canEdit&&<div className="empty-state"><span className="empty-icon">👆</span><p>Sélectionnez une classe et un élève pour voir les notes</p></div>}
-      {targetEleveId&&!current&&<EmptyState label={activeLabel}/>}
-
-      {/* ── ÉVALUATIONS ── */}
-      {current&&activeTab==="evaluations"&&(
-        <div className="tab-content">
-          <table className="notes-table">
-            <thead><tr><th>Disciplines</th><th>Moyenne élève</th>{!isAnnee&&<th>Moy. classe</th>}<th>Évaluations</th>{canEdit&&!isAnnee&&<th></th>}</tr></thead>
-            <tbody>
-              {current.notes.map((row,i)=>{
-                const cs=classStats[row.matiere];
-                return(
-                  <tr key={i}>
-                    <td><span className="matiere-name">{row.matiere.toUpperCase()}</span><span className="prof-name">{row.prof}</span></td>
-                    <td className="center bold">{row.moyenne}</td>
-                    {!isAnnee&&<td className="center muted">{cs?.moyenneClasse||"—"}</td>}
-                    <td>
-                      <div className="evals-cell">
-                        {row.evals.map((ev,j)=>(
-                          <span key={j} className="eval-pill">
-                            {ev}
-                            {canEdit&&!isAnnee&&<button className="eval-del" onClick={()=>removeNoteEleve(targetEleveId,activeReleve,row.matiere,j)}>×</button>}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    {canEdit&&!isAnnee&&<td></td>}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="moyenne-generale">
-            Moyenne générale élève : <strong>{current.notes.length?((current.notes.map(n=>parseFloat(n.moyenne.replace(",","."))).filter(v=>!isNaN(v)).reduce((a,b)=>a+b,0))/(current.notes.map(n=>parseFloat(n.moyenne.replace(",","."))).filter(v=>!isNaN(v)).length||1)).toFixed(2).replace(".",","):"—"}</strong>
-            {eleveIdsClasse.length>1&&!isAnnee&&<span className="muted" style={{marginLeft:16}}>· Moy. classe calculée sur {eleveIdsClasse.length} élèves</span>}
-          </div>
-        </div>
-      )}
-
-      {/* ── MOYENNES ── */}
-      {current&&activeTab==="moyennes"&&(
-        <div className="tab-content">
-          <table className="notes-table">
-            <thead><tr><th>Discipline</th><th>Élève</th><th>Classe</th><th>Min</th><th>Max</th></tr></thead>
-            <tbody>
-              {current.notes.map((row,i)=>{
-                const cs=classStats[row.matiere];
-                return(
-                  <tr key={i}>
-                    <td><span className="matiere-name">{row.matiere.toUpperCase()}</span></td>
-                    <td className="center bold">{row.moyenne}</td>
-                    <td className="center">{cs?.moyenneClasse||"—"}</td>
-                    <td className="center muted">{cs?.min||"—"}</td>
-                    <td className="center muted">{cs?.max||"—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ── COMPÉTENCES ── */}
-      {current&&activeTab==="competences"&&(
-        <div className="tab-content">
-          {current.competences.length===0
-            ?<EmptyState label="compétences"/>
-            :(
-              <table className="notes-table comp-table">
-                <thead><tr><th>Discipline</th><th>Éléments de programme</th><th>Non atteints</th><th>Part. atteints</th><th>Atteints</th><th>Dépassés</th></tr></thead>
-                <tbody>
-                  {current.competences.map(groupe=>groupe.items.map((item,j)=>(
-                    <tr key={`${groupe.matiere}-${j}`}>
-                      {j===0&&<td rowSpan={groupe.items.length} className="matiere-cell">{groupe.matiere.toUpperCase()}</td>}
-                      <td>{item.label}</td>
-                      <td className="center">{item.level==="non"?"●":""}</td>
-                      <td className="center">{item.level==="partiellement"?"●":""}</td>
-                      <td className="center">{item.level==="atteints"?"●":""}</td>
-                      <td className="center">{item.level==="depasses"?"●":""}</td>
-                    </tr>
-                  )))}
-                </tbody>
-              </table>
-            )
-          }
-        </div>
-      )}
-
-      {/* ── GRAPHIQUES ── */}
-      {current&&activeTab==="graphiques"&&(
-        <div className="tab-content graphiques">
-          <h3 style={{marginBottom:20,color:"#1e3a8a"}}>Évolution des moyennes</h3>
-          <div className="graph-bars">
-            {current.notes.map((row,i)=>{
-              const val=parseFloat(row.moyenne.replace(",","."));
-              const pct=(val/20)*100;
-              const color=val>=16?"#22c55e":val>=12?"#3b82f6":"#f97316";
-              return(
-                <div key={i} className="graph-row">
-                  <span className="graph-label">{row.matiere}</span>
-                  <div className="graph-bar-bg"><div className="graph-bar-fill bar-grow" style={{width:`${pct}%`,background:color,animationDelay:`${i*0.06}s`}}/></div>
-                  <span className="graph-value">{row.moyenne}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .notes-container { padding: 16px 12px; }
+  .modal-info-grid { grid-template-columns: 1fr; }
+  .eval-form-grid { grid-template-columns: 1fr; }
+  .modal-stats { flex-direction: column; gap: 8px; }
+  .notes-table th:nth-child(3), .notes-table td:nth-child(3) { display: none; }
 }
