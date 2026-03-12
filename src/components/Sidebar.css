@@ -150,8 +150,10 @@
 
 /* Déconnexion */
 .sidebar-logout {
-  margin-top: auto;
-  margin-bottom: 16px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
