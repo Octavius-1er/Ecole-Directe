@@ -25,10 +25,11 @@ export function DataProvider({ children }) {
   const [absencesPE,  setAbsencesPE]  = useState({});
   const [punitionsPE, setPunitionsPE] = useState({});
   const [messages,    setMessages]    = useState([]);
+  const [periode,     setPeriode]     = useState({ releveId:"r5", trimestreId:"t3" });
   const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
-    let loaded = 0; const total = 7;
+    let loaded = 0; const total = 8;
     function tick() { loaded++; if (loaded >= total) setLoading(false); }
     const unsubs = [
       onSnapshot(doc(db,"app","classes"),     s => { setClasses(s.exists()     ? s.data().data||{} : {}); tick(); }),
@@ -38,12 +39,17 @@ export function DataProvider({ children }) {
       onSnapshot(doc(db,"app","absencesPE"),  s => { setAbsencesPE(s.exists()  ? s.data().data||{} : {}); tick(); }),
       onSnapshot(doc(db,"app","punitionsPE"), s => { setPunitionsPE(s.exists() ? s.data().data||{} : {}); tick(); }),
       onSnapshot(doc(db,"app","messages"),    s => { setMessages(s.exists()    ? s.data().data||[] : []); tick(); }),
+      onSnapshot(doc(db,"app","periode"),     s => { setPeriode(s.exists()     ? s.data().data||{ releveId:"r5", trimestreId:"t3" } : { releveId:"r5", trimestreId:"t3" }); tick(); }),
     ];
     return () => unsubs.forEach(u => u());
   }, []);
 
   async function save(key, data) {
     await setDoc(doc(db, "app", key), { data, updatedAt: serverTimestamp() });
+  }
+
+  async function savePeriode(p) {
+    await save("periode", p);
   }
 
   // ── CLASSES ──
@@ -176,6 +182,7 @@ export function DataProvider({ children }) {
       getEdtClasse, addEdtItem, removeEdtItem,
       getAbsencesEleve, getPunitionsEleve, addAbsence, removeAbsence, addPunition, removePunition,
       messages, sendMessage, markRead, deleteMessage,
+      periode, savePeriode,
     }}>
       {children}
     </DataContext.Provider>
