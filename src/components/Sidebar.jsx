@@ -29,6 +29,7 @@ const MENU_ADMIN = [
   { to: "/emploi-du-temps", icon: "📅", label: "Emploi du temps" },
   { to: "/cahier-de-texte", icon: "📋", label: "Cahier de textes" },
   { to: "/classes",         icon: "🏫", label: "Gestion classes" },
+  { to: "/periode",         icon: "📅", label: "Période scolaire" },
   { to: "/admin",           icon: "⚙️", label: "Gestion comptes" },
 ];
 
