@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function saveAccounts(list) {
-    await setDoc(doc(db, "app", "accounts"), { data: list, updatedAt: serverTimestamp() }, { merge: true });
+    await setDoc(doc(db, "app", "accounts"), { data: list, updatedAt: serverTimestamp() }, );
   }
 
   function login(username, password) {
