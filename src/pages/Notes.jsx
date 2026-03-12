@@ -398,7 +398,7 @@ export default function Notes() {
                 )}
                 <div className="modal-info-item">
                   <span className="info-label">Note de l'élève</span>
-                  <span className="info-note">{detailEval.noteEleve} / 20</span>
+                  <span className="info-note">{detailEval.noteEleve}{/\//.test(String(detailEval.noteEleve)) ? "" : " / 20"}</span>
                 </div>
               </div>
 
