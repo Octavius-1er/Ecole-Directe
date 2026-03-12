@@ -14,6 +14,7 @@ import EmploiDuTemps from "./pages/EmploiDuTemps";
 import CahierDeTextes from "./pages/CahierDeTexte";
 import AdminPanel from "./pages/AdminPanel";
 import GestionClasses from "./pages/GestionClasses";
+import Periode from "./pages/Periode";
 
 import "./App.css";
 
@@ -40,6 +41,7 @@ function AppInner() {
           <Route path="/cahier-de-texte" element={<CahierDeTextes />} />
           <Route path="/admin" element={user.role === "admin" ? <AdminPanel /> : <Navigate to="/" replace />} />
           <Route path="/classes" element={user.role === "admin" ? <GestionClasses /> : <Navigate to="/" replace />} />
+          <Route path="/periode" element={user.role === "admin" ? <Periode /> : <Navigate to="/" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
