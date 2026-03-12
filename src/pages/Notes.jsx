@@ -206,9 +206,56 @@ export default function Notes() {
               <table className="ed-table">
                 <thead><tr><th>Trimestre</th><th>Moyenne générale</th></tr></thead>
                 <tbody>
-                  {["t1","t2","t3"].map(tid=>{ const rels=TRIMESTRES.find(t=>t.id===tid)?.releves||[]; const v=rels.flatMap(r=>(evals||[]).filter(e=>e.classeId===classeId&&e.releveId===r.id&&e.notes?.[targetEleveId]!=null).map(e=>parseVal(e.notes[targetEleveId])).filter(v=>!isNaN(v))); return <tr key={tid}><td>{TRIMESTRES.find(t=>t.id===tid)?.label}</td><td><strong>{fmt(v.length?v.reduce((a,b)=>a+b)/v.length:null)}</strong></td></tr>; })}
-                  <tr className="annee-row"><td><strong>Moyenne annuelle</strong></td><td><strong style={{color:"#1a4fa0",fontSize:17}}>{fmt(()=>{ const v=RELEVES_ORDER.flatMap(rid=>(evals||[]).filter(e=>e.classeId===classeId&&e.releveId===rid&&e.notes?.[targetEleveId]!=null).map(e=>parseVal(e.notes[targetEleveId])).filter(v=>!isNaN(v))); return v.length?v.reduce((a,b)=>a+b)/v.length:null; }())}</strong></td></tr>
-                </tbody>
+  {["t1","t2","t3"].map(tid => {
+    const rels = TRIMESTRES.find(t => t.id === tid)?.releves || [];
+
+    const v = rels.flatMap(r =>
+      (evals || [])
+        .filter(e =>
+          e.classeId === classeId &&
+          e.releveId === r.id &&
+          e.notes?.[targetEleveId] != null
+        )
+        .map(e => parseVal(e.notes[targetEleveId]))
+        .filter(v => !isNaN(v))
+    );
+
+    const moyenne = v.length ? v.reduce((a,b)=>a+b)/v.length : null;
+
+    return (
+      <tr key={tid}>
+        <td>{TRIMESTRES.find(t=>t.id===tid)?.label}</td>
+        <td>
+          <strong>{fmt(moyenne)}</strong>
+        </td>
+      </tr>
+    );
+  })}
+
+  <tr className="annee-row">
+    <td>
+      <strong>Moyenne annuelle</strong>
+    </td>
+    <td>
+      <strong style={{color:"#1a4fa0",fontSize:17}}>
+        {fmt((() => {
+          const v = RELEVES_ORDER.flatMap(rid =>
+            (evals || [])
+              .filter(e =>
+                e.classeId === classeId &&
+                e.releveId === rid &&
+                e.notes?.[targetEleveId] != null
+              )
+              .map(e => parseVal(e.notes[targetEleveId]))
+              .filter(v => !isNaN(v))
+          );
+
+          return v.length ? v.reduce((a,b)=>a+b)/v.length : null;
+        })())}
+      </strong>
+    </td>
+  </tr>
+</tbody>
               </table>
             </div>
           ) : (
