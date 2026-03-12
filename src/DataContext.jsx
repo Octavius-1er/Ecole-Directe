@@ -44,7 +44,7 @@ export function DataProvider({ children }) {
   }, []);
 
   async function save(key, data) {
-    await setDoc(doc(db, "app", key), { data, updatedAt: serverTimestamp() }, { merge: true });
+    await setDoc(doc(db, "app", key), { data, updatedAt: serverTimestamp() });
   }
 
   // ── CLASSES ──
