@@ -238,3 +238,13 @@
   .modal-stats { flex-direction: column; gap: 8px; }
   .notes-table th:nth-child(3), .notes-table td:nth-child(3) { display: none; }
 }
+
+/* ── Relevé verrouillé ── */
+.releve-locked {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #fef2f2; color: #991b1b; border: 1.5px solid #fca5a5;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+}
+.releve-locked.future {
+  background: #f8faff; color: #64748b; border-color: #dde3ef;
+}
