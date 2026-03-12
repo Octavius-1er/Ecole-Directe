@@ -1,0 +1,89 @@
+.periode-container { padding: 28px 20px; animation: fadeUp 0.3s ease; max-width: 700px; }
+.periode-title { font-size: 24px; color: #1a4fa0; font-weight: 800; margin-bottom: 6px; }
+.periode-subtitle { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+
+.periode-card {
+  background: white; border-radius: 16px; padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px;
+  border: 1.5px solid #e2e8f0;
+}
+
+/* Période active */
+.periode-current {
+  display: flex; flex-direction: column; gap: 4px;
+  background: #eff6ff; border-radius: 10px; padding: 14px 18px;
+  border: 1.5px solid #bfdbfe; margin-bottom: 24px;
+}
+.periode-current-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+.periode-current-value { font-size: 18px; font-weight: 800; color: #1a4fa0; }
+
+/* Sélecteur */
+.periode-selector h3 { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 16px; }
+.periode-trimestre-block { margin-bottom: 18px; }
+.periode-trimestre-label {
+  font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.periode-releves-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.periode-releve-btn {
+  display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+  padding: 10px 16px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+  background: white; cursor: pointer; font-family: 'Outfit', sans-serif;
+  min-width: 120px; transition: 0.15s;
+}
+.periode-releve-btn:hover { border-color: #93c5fd; background: #f0f9ff; }
+.periode-releve-btn.current { background: #1a4fa0; border-color: #1a4fa0; }
+.periode-releve-btn.past { background: #f0fdf4; border-color: #86efac; }
+.periode-releve-btn.future { opacity: 0.6; }
+
+.releve-btn-label { font-size: 14px; font-weight: 700; color: inherit; }
+.periode-releve-btn.current .releve-btn-label { color: white; }
+.periode-releve-btn.past .releve-btn-label { color: #166534; }
+.releve-btn-status { font-size: 11px; font-weight: 600; color: #94a3b8; }
+.periode-releve-btn.current .releve-btn-status { color: #bfdbfe; }
+.periode-releve-btn.past .releve-btn-status { color: #86efac; }
+
+/* Warning */
+.periode-warning {
+  background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 10px;
+  padding: 12px 16px; font-size: 13px; color: #92400e; margin: 16px 0;
+}
+
+/* Footer */
+.periode-footer { display: flex; align-items: center; gap: 14px; padding-top: 16px; border-top: 1.5px solid #f1f5f9; }
+.btn-save-periode {
+  background: #1a4fa0; color: white; border: none; padding: 10px 24px;
+  border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: 'Outfit', sans-serif; transition: 0.15s;
+}
+.btn-save-periode:hover:not(:disabled) { opacity: 0.88; }
+.btn-save-periode:disabled { opacity: 0.4; cursor: not-allowed; }
+.periode-success { color: #16a34a; font-size: 13px; font-weight: 600; }
+
+/* Timeline */
+.periode-timeline-card {
+  background: white; border-radius: 16px; padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1.5px solid #e2e8f0;
+}
+.periode-timeline-card h3 { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 20px; }
+.periode-timeline { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding-bottom: 8px; }
+.timeline-item { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1; min-width: 80px; }
+.timeline-dot {
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid #cbd5e1;
+  background: white; z-index: 1; flex-shrink: 0;
+}
+.timeline-item.past .timeline-dot { background: #22c55e; border-color: #22c55e; }
+.timeline-item.current .timeline-dot { background: #1a4fa0; border-color: #1a4fa0; width: 18px; height: 18px; box-shadow: 0 0 0 4px #bfdbfe; }
+.timeline-line {
+  position: absolute; top: 7px; left: 50%; width: 100%;
+  height: 2px; background: #e2e8f0; z-index: 0;
+}
+.timeline-item.past .timeline-line { background: #86efac; }
+.timeline-label {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  margin-top: 10px; text-align: center;
+}
+.tl-releve { font-size: 12px; font-weight: 700; color: #334155; }
+.tl-trim { font-size: 10px; color: #94a3b8; }
+.timeline-item.current .tl-releve { color: #1a4fa0; }
