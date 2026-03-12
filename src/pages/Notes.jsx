@@ -3,6 +3,7 @@ import { useAuth } from "../AuthContext";
 import { useData } from "../DataContext";
 import "./Notes.css";
 
+const MATIERES=["Français","Mathématiques","Anglais LV1","Allemand LV2","Histoire-Géo","Sciences Vie & Terre","Physique-Chimie","Technologie","EPS","Arts Plastiques","Éducation Musicale","LCA Latin"];
 const TRIMESTRES = [
   { id:"t1", label:"1er Trimestre",  releves:[{id:"r1",label:"Relevé 1"},{id:"r2",label:"Relevé 2"}] },
   { id:"t2", label:"2ème Trimestre", releves:[{id:"r3",label:"Relevé 3"},{id:"r4",label:"Relevé 4"}] },
@@ -151,7 +152,7 @@ export default function Notes(){
             <button key={tab.id} className={`sub-tab ${activeTab===tab.id?"active":""}`} onClick={()=>setActiveTab(tab.id)}>{tab.label}</button>
           ))}
         </div>
-        {canEdit&&!isAnnee&&current&&targetEleveId&&(
+        {canEdit&&!isAnnee&&targetEleveId&&(
           <button className="btn-add-note" onClick={()=>setShowAdd(v=>!v)}>
             {showAdd?"✕ Fermer":"➕ Ajouter une note"}
           </button>
@@ -163,12 +164,8 @@ export default function Notes(){
         <form className="add-note-form" onSubmit={handleAddNote}>
           <select value={newNote.matiere} onChange={e=>setNewNote(p=>({...p,matiere:e.target.value}))} required>
             <option value="">— Matière —</option>
-            {current?.notes.map(n=><option key={n.matiere} value={n.matiere}>{n.matiere}</option>)}
-            <option value="__new__">+ Nouvelle matière...</option>
+            {MATIERES.map(m=><option key={m} value={m}>{m}</option>)}
           </select>
-          {newNote.matiere==="__new__"&&(
-            <input type="text" placeholder="Nom de la matière" onBlur={e=>setNewNote(p=>({...p,matiere:e.target.value}))} />
-          )}
           <input type="text" placeholder="Note (ex: 15 ou 8/10)" value={newNote.valeur} onChange={e=>setNewNote(p=>({...p,valeur:e.target.value}))} required />
           <button type="submit" className="btn-primary-sm">Ajouter</button>
           {msg&&<span className="add-success">{msg}</span>}
