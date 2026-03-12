@@ -28,13 +28,13 @@ export default function GestionClasses() {
     setNewClasse({nom:"",niveau:"5ème"});
   }
 
-  function handleDeleteClasse(id){
+  async function handleDeleteClasse(id){
     if(!window.confirm("Supprimer cette classe ? Les élèves ne seront plus assignés.")) return;
     // Désassigner les élèves
-    eleves.filter(e=>e.classeId===id).forEach(e=>updateAccount(e.id,{classeId:null}));
-    deleteClass(id);
-    if(selectedClasse===id) setSelectedClasse(Object.keys(classes).find(k=>k!==id)||null);
-    flash("Classe supprimée.");
+    await Promise.all(eleves.filter(e=>e.classeId===id).map(e=>updateAccount(e.id,{classeId:null})));
+    await deleteClass(id);
+    if(selectedClasse===id) setSelectedClasse(Object.keys(classes).find(k=>k!==id)||"");
+    flash("Classe supprimée ✓");
   }
 
   function handleStartEdit(c){ setEditId(c.id); setEditNom(c.nom); }
