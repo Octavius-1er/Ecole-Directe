@@ -1,6 +1,6 @@
 .cdt-container { padding: 20px 10px 20px 20px; }
 
-.cdt-title { font-size: 22px; color: #1a4fa0; margin-bottom: 20px; font-weight: 600; }
+.cdt-title { font-size: 22px; color: #145c4a; margin-bottom: 20px; font-weight: 600; }
 .cdt-subtitle { font-size: 15px; font-weight: 400; color: #555; }
 
 .cdt-layout {
@@ -13,14 +13,14 @@
 /* ── Calendrier ── */
 .cdt-calendar { background: white; border-radius: 4px; box-shadow: 0 1px 6px rgba(0,0,0,0.1); overflow: hidden; }
 
-.cal-header { background: #1a4fa0; color: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; }
+.cal-header { background: #145c4a; color: white; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; }
 .cal-month { font-size: 15px; }
 .cal-nav { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 6px; opacity: 0.85; }
 .cal-nav:hover { opacity: 1; }
 
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); padding: 10px 8px; gap: 2px; }
 
-.cal-dayname { text-align: center; font-size: 12px; font-weight: 600; color: #1a4fa0; padding: 4px 0; }
+.cal-dayname { text-align: center; font-size: 12px; font-weight: 600; color: #145c4a; padding: 4px 0; }
 
 .cal-day {
   text-align: center; font-size: 13px; padding: 5px 2px;
@@ -30,9 +30,9 @@
 }
 .cal-day:hover { background: #e3f0ff; }
 .cal-day.other-month { color: #ccc; }
-.cal-day.today { color: #1a4fa0; font-weight: 700; }
-.cal-day.selected { background: #1a4fa0 !important; color: white !important; font-weight: 700; }
-.cal-day.has-devoirs { font-weight: 600; color: #1a4fa0; }
+.cal-day.today { color: #145c4a; font-weight: 700; }
+.cal-day.selected { background: #145c4a !important; color: white !important; font-weight: 700; }
+.cal-day.has-devoirs { font-weight: 600; color: #145c4a; }
 .cal-day.has-devoirs.selected { color: white !important; }
 
 /* ── Centre ── */
@@ -83,7 +83,7 @@
 .cdt-weeknav { display: flex; flex-direction: column; align-items: center; gap: 3px; position: sticky; top: 20px; }
 
 .cdt-nav-arrow {
-  background: #1a4fa0; color: white; border: none;
+  background: #145c4a; color: white; border: none;
   border-radius: 50%; width: 26px; height: 26px;
   font-size: 13px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
@@ -97,9 +97,9 @@
   padding: 10px 7px; cursor: pointer; border-radius: 3px;
   transition: 0.15s; white-space: nowrap;
 }
-.cdt-nav-day:hover { background: #d0e4f7; color: #1a4fa0; }
-.cdt-nav-day.active { background: #1a4fa0; color: white; font-weight: 700; }
-.cdt-nav-day.has-items { color: #1a4fa0; font-weight: 600; }
+.cdt-nav-day:hover { background: #d0e4f7; color: #145c4a; }
+.cdt-nav-day.active { background: #145c4a; color: white; font-weight: 700; }
+.cdt-nav-day.has-items { color: #145c4a; font-weight: 600; }
 .cdt-nav-day.active.has-items { color: white; }
 
 .cdt-nav-label {
@@ -119,9 +119,9 @@
   padding: 7px 12px; border: 1.5px solid #dde3ef; border-radius: 7px;
   font-size: 14px; font-family: 'Outfit', sans-serif; outline: none; min-width: 180px;
 }
-.cdt-class-selector select:focus { border-color: #1a4fa0; }
+.cdt-class-selector select:focus { border-color: #145c4a; }
 .selector-eleve-chip {
-  background: #eff6ff; color: #1a4fa0; border: 1.5px solid #bfdbfe;
+  background: #eff6ff; color: #145c4a; border: 1.5px solid #bfdbfe;
   border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 600;
 }
 

@@ -6,7 +6,7 @@
 
 .edt-title {
   font-size: 24px;
-  color: #1a4fa0;
+  color: #145c4a;
   font-weight: 800;
   margin-bottom: 20px;
 }
@@ -41,7 +41,7 @@
 }
 .selector-chip {
   background: #eff6ff;
-  color: #1a4fa0;
+  color: #145c4a;
   border: 1.5px solid #bfdbfe;
   border-radius: 20px;
   padding: 4px 12px;
@@ -73,9 +73,9 @@
   text-align: center;
 }
 .edt-day-btn.active {
-  background: #1a4fa0;
+  background: #145c4a;
   color: white;
-  border-color: #1a4fa0;
+  border-color: #145c4a;
 }
 .edt-day-btn:hover:not(.active) { background: #f0f4fb; }
 
@@ -122,7 +122,7 @@
   box-sizing: border-box;
 }
 .edt-form-field input:focus,
-.edt-form-field select:focus { border-color: #1a4fa0; }
+.edt-form-field select:focus { border-color: #145c4a; }
 
 /* ── Contenu jour ── */
 .edt-day-content {
@@ -200,7 +200,7 @@
 /* ── Boutons ── */
 .btn-add-note {
   background: #eff6ff;
-  color: #1a4fa0;
+  color: #145c4a;
   border: 1.5px solid #bfdbfe;
   padding: 8px 16px;
   border-radius: 8px;
@@ -213,7 +213,7 @@
 .btn-add-note:hover { background: #dbeafe; }
 
 .btn-primary-sm {
-  background: #1a4fa0;
+  background: #145c4a;
   color: white;
   border: none;
   padding: 9px 20px;

@@ -1,21 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { saveDoc, subscribe } from "./localStore";
+import { ACCOUNTS_VERSION, DEFAULT_ACCOUNTS } from "./seed";
 
 const AuthContext = createContext(null);
-
-const ACCOUNTS_VERSION = "2";
-
-const DEFAULT_ACCOUNTS = [
-  { id:"1", username:"admin",    password:"admin123", role:"admin", nom:"Administrateur",       prenom:"Principal" },
-  { id:"2", username:"morel",    password:"admin123", role:"admin", nom:"Morel",                prenom:"Sophie" },
-  { id:"3", username:"lefevre",  password:"admin123", role:"admin", nom:"Lefèvre",              prenom:"Jean" },
-  { id:"4", username:"fischer",  password:"prof123",  role:"prof",  nom:"Fischer",              prenom:"N.",    matiere:"Français" },
-  { id:"5", username:"durand",   password:"prof123",  role:"prof",  nom:"Durand",               prenom:"L.",    matiere:"Mathématiques" },
-  { id:"6", username:"bernard",  password:"prof123",  role:"prof",  nom:"Bernard",              prenom:"C.",    matiere:"Histoire-Géographie" },
-  { id:"7", username:"octave",   password:"eleve123", role:"eleve", nom:"Le Chatelier Gaign.",  prenom:"Octave", classe:"5ème F EUROP." },
-  { id:"8", username:"marie",    password:"eleve123", role:"eleve", nom:"Dupont",               prenom:"Marie",  classe:"5ème F EUROP." },
-  { id:"9", username:"lucas",    password:"eleve123", role:"eleve", nom:"Martin",               prenom:"Lucas",  classe:"4ème A" },
-];
 
 export function AuthProvider({ children }) {
   const [user,     setUser]     = useState(null);

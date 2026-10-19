@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
+import { ROLE_LABELS } from "../roles";
 import "./AdminPanel.css";
 
-const ROLE_LABELS = { admin: "Administrateur", prof: "Professeur", eleve: "Élève" };
-const ROLE_COLORS = { admin: "#7c3aed", prof: "#0284c7", eleve: "#16a34a" };
+const ROLE_COLORS = { admin: "#145c4a", prof: "#1d4ed8", parent: "#b45309", eleve: "#15803d" };
 
-const EMPTY_FORM = { username: "", password: "", role: "eleve", nom: "", prenom: "", matiere: "", classe: "" };
+const EMPTY_FORM = { username: "", password: "", role: "eleve", nom: "", prenom: "", matiere: "", classe: "", enfantId: "" };
 
 export default function AdminPanel() {
   const { accounts, addAccount, updateAccount, deleteAccount, user } = useAuth();
@@ -35,12 +35,19 @@ export default function AdminPanel() {
     const err = validate();
     if (err) { setError(err); return; }
 
+    const payload = { ...form };
+    if (form.role === "parent" && form.enfantId) {
+      const child = accounts.find(a => a.id === form.enfantId);
+      payload.classeId = child?.classeId || "";
+      payload.classe = child?.classe || "";
+    }
+
     if (editId) {
-      updateAccount(editId, form);
+      updateAccount(editId, payload);
       setSuccess("Compte mis à jour avec succès.");
       setEditId(null);
     } else {
-      addAccount(form);
+      addAccount(payload);
       setSuccess("Compte créé avec succès.");
     }
     setForm(EMPTY_FORM);
@@ -48,7 +55,7 @@ export default function AdminPanel() {
 
   function handleEdit(acc) {
     setEditId(acc.id);
-    setForm({ username: acc.username, password: acc.password, role: acc.role, nom: acc.nom, prenom: acc.prenom, matiere: acc.matiere || "", classe: acc.classe || "" });
+    setForm({ username: acc.username, password: acc.password, role: acc.role, nom: acc.nom, prenom: acc.prenom, matiere: acc.matiere || "", classe: acc.classe || "", enfantId: acc.enfantId || "" });
     setError(""); setSuccess("");
     window.scrollTo(0, 0);
   }
@@ -94,8 +101,9 @@ export default function AdminPanel() {
               <label>Rôle *</label>
               <select name="role" value={form.role} onChange={handleChange}>
                 <option value="eleve">Élève</option>
+                <option value="parent">Parent</option>
                 <option value="prof">Professeur</option>
-                <option value="admin">Administrateur</option>
+                <option value="admin">Proviseur</option>
               </select>
             </div>
           </div>
@@ -113,6 +121,17 @@ export default function AdminPanel() {
               <div className="admin-field">
                 <label>Matière</label>
                 <input name="matiere" value={form.matiere} onChange={handleChange} placeholder="ex: Mathématiques" />
+              </div>
+            )}
+            {form.role === "parent" && (
+              <div className="admin-field">
+                <label>Enfant</label>
+                <select name="enfantId" value={form.enfantId} onChange={handleChange}>
+                  <option value="">— Choisir —</option>
+                  {accounts.filter(a => a.role === "eleve").map(a => (
+                    <option key={a.id} value={a.id}>{a.prenom} {a.nom}</option>
+                  ))}
+                </select>
               </div>
             )}
             {form.role === "eleve" && (
@@ -137,7 +156,7 @@ export default function AdminPanel() {
         <div className="admin-list-header">
           <h2>Comptes existants ({accounts.length})</h2>
           <div className="admin-filter">
-            {["tous","admin","prof","eleve"].map(r => (
+            {["tous","admin","prof","parent","eleve"].map(r => (
               <button key={r} className={`filter-btn ${filterRole === r ? "active" : ""}`} onClick={() => setFilterRole(r)}>
                 {r === "tous" ? "Tous" : ROLE_LABELS[r]}
               </button>
@@ -166,7 +185,7 @@ export default function AdminPanel() {
                     {ROLE_LABELS[acc.role]}
                   </span>
                 </td>
-                <td className="muted">{acc.matiere || acc.classe || "—"}</td>
+                <td className="muted">{acc.matiere || acc.classe || (acc.role === "parent" ? "Parent d'élève" : "—")}</td>
                 <td><code className="pw-hidden">••••••••</code></td>
                 <td>
                   <div className="action-btns">

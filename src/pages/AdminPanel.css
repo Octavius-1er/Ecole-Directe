@@ -1,6 +1,6 @@
 .admin-container { padding: 20px; }
 
-.admin-title { font-size: 26px; color: #1a4fa0; margin-bottom: 24px; font-weight: 700; }
+.admin-title { font-size: 26px; color: #145c4a; margin-bottom: 24px; font-weight: 700; }
 
 .admin-card {
   background: white;
@@ -30,12 +30,12 @@
   border-radius: 7px; font-size: 14px; outline: none;
   transition: border-color 0.15s; font-family: 'Outfit', sans-serif;
 }
-.admin-field input:focus, .admin-field select:focus { border-color: #1a4fa0; }
+.admin-field input:focus, .admin-field select:focus { border-color: #145c4a; }
 
 .admin-form-actions { display: flex; gap: 10px; margin-top: 4px; }
 
 .btn-primary {
-  background: #1a4fa0; color: white; border: none;
+  background: #145c4a; color: white; border: none;
   padding: 10px 22px; border-radius: 8px; font-size: 14px;
   font-weight: 600; cursor: pointer; transition: opacity 0.15s;
   font-family: 'Outfit', sans-serif;
@@ -60,7 +60,7 @@
   font-size: 13px; cursor: pointer; font-family: 'Outfit', sans-serif;
   transition: 0.15s;
 }
-.filter-btn.active { background: #1a4fa0; color: white; border-color: #1a4fa0; }
+.filter-btn.active { background: #145c4a; color: white; border-color: #145c4a; }
 
 .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .admin-table th { background: #f8faff; padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 700; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase; }
@@ -78,7 +78,7 @@
 .action-btns { display: flex; gap: 6px; }
 
 .btn-edit {
-  padding: 5px 12px; background: #eff6ff; color: #1a4fa0;
+  padding: 5px 12px; background: #eff6ff; color: #145c4a;
   border: 1px solid #bfdbfe; border-radius: 6px; font-size: 12px;
   cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600;
 }

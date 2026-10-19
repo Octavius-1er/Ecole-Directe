@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useData } from "../DataContext";
+import { canTeach, viewerClasseId } from "../roles";
 import "./EmploiDuTemps.css";
 
 const MATIERES = ["Français","Mathématiques","Anglais LV1","Allemand LV2","Histoire-Géo","Sciences Vie & Terre","Physique-Chimie","Technologie","EPS","Arts Plastiques","Éducation Musicale","LCA Latin"];
@@ -24,11 +25,13 @@ const DAYS = [
 export default function EmploiDuTemps() {
   const { user } = useAuth();
   const { classes, getEdtClasse, addEdtItem, removeEdtItem } = useData();
-  const canEdit = user?.role === "admin" || user?.role === "prof";
-
-  const eleveClasse = user?.role === "eleve" ? user?.classeId : null;
-  const [selectedClasse, setSelectedClasse] = useState(eleveClasse || Object.keys(classes)[0] || "");
-  const classeId = user?.role === "eleve" ? eleveClasse : selectedClasse;
+  const canEdit = canTeach(user);
+  const lockedClasse = viewerClasseId(user);
+  const [selectedClasse, setSelectedClasse] = useState(lockedClasse || Object.keys(classes)[0] || "");
+  useEffect(() => {
+    if (!lockedClasse && !selectedClasse && Object.keys(classes)[0]) setSelectedClasse(Object.keys(classes)[0]);
+  }, [classes, lockedClasse, selectedClasse]);
+  const classeId = lockedClasse || selectedClasse;
 
   const [activeDay, setActiveDay] = useState("lun");
   const [showAdd,   setShowAdd]   = useState(false);

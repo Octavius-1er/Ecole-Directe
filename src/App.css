@@ -1,12 +1,12 @@
-.app-layout {
-  display: flex;
+.app-layout { min-height: 100vh; }
+
+.app-content {
+  margin-left: 268px;
+  padding: 28px;
   min-height: 100vh;
 }
 
-.app-content {
-  margin-left: 60px;
-  padding: 20px;
-  width: calc(100% - 60px);
-  min-height: 100vh;
-  overflow-y: auto;
+@media (max-width: 800px) {
+  .sidebar { position: relative; width: 100%; min-height: auto; }
+  .app-content { margin-left: 0; }
 }

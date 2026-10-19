@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useAuth } from "../AuthContext";
 import { useData } from "../DataContext";
+import { canTeach, viewerClasseId, viewerEleveId } from "../roles";
 import "./Notes.css";
 
 const MATIERES = ["Français","Mathématiques","Anglais LV1","Allemand LV2","Histoire-Géo","Sciences Vie & Terre","Physique-Chimie","Technologie","EPS","Arts Plastiques","Éducation Musicale","LCA Latin"];
@@ -34,15 +35,17 @@ function fmt(n) {
 export default function Notes() {
   const { user, accounts } = useAuth();
   const { classes, evals, addEval, deleteEval, periode } = useData();
-  const canEdit = user?.role==="admin" || user?.role==="prof";
+  const canEdit = canTeach(user);
+  const lockedClasse = viewerClasseId(user);
+  const lockedEleve = viewerEleveId(user);
 
   const classeIds = Object.keys(classes||{});
   const [selectedClasse, setSelectedClasse] = useState("");
   useEffect(()=>{ if(!selectedClasse && classeIds.length>0) setSelectedClasse(classeIds[0]); },[classeIds.join(",")]);
-  const classeId = user?.role==="eleve" ? (user?.classeId||"") : selectedClasse;
+  const classeId = lockedClasse || selectedClasse;
   const elevesClasse = (accounts||[]).filter(a=>a.role==="eleve"&&a.classeId===classeId);
   const [selectedEleve, setSelectedEleve] = useState("");
-  const targetEleveId = user?.role==="eleve" ? user.id : selectedEleve;
+  const targetEleveId = lockedEleve || selectedEleve;
   const targetAccount = (accounts||[]).find(a=>a.id===targetEleveId);
 
   const [activeTrimestre, setActiveTrimestre] = useState(periode?.trimestreId||"t3");

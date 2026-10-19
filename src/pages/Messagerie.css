@@ -25,7 +25,7 @@
 
 .mail-sidebar-header h2 {
   font-size: 18px;
-  color: #1a4fa0;
+  color: #145c4a;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -42,7 +42,7 @@
 }
 
 .btn-compose {
-  background: #1a4fa0;
+  background: #145c4a;
   color: white;
   border: none;
   padding: 7px 14px;
@@ -67,9 +67,9 @@
 }
 .mail-item:hover { background: #f8faff; }
 .mail-item.active { background: #eff6ff; }
-.mail-item.unread .mail-from { font-weight: 700; color: #1a4fa0; }
+.mail-item.unread .mail-from { font-weight: 700; color: #145c4a; }
 .mail-item.unread .mail-subject { font-weight: 700; }
-.mail-item.unread { border-left: 3px solid #1a4fa0; }
+.mail-item.unread { border-left: 3px solid #145c4a; }
 
 .mail-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
 .mail-from { font-size: 13px; color: #1e293b; }
@@ -101,7 +101,7 @@
 
 /* Compose */
 .mail-compose { display: flex; flex-direction: column; gap: 16px; max-width: 700px; }
-.compose-title { font-size: 20px; color: #1a4fa0; font-weight: 700; margin-bottom: 4px; }
+.compose-title { font-size: 20px; color: #145c4a; font-weight: 700; margin-bottom: 4px; }
 .compose-field { display: flex; flex-direction: column; gap: 6px; }
 .compose-field label { font-size: 13px; font-weight: 600; color: #555; }
 .compose-field input, .compose-field textarea {
@@ -114,10 +114,10 @@
   resize: vertical;
   transition: border-color 0.15s;
 }
-.compose-field input:focus, .compose-field textarea:focus { border-color: #1a4fa0; }
+.compose-field input:focus, .compose-field textarea:focus { border-color: #145c4a; }
 
 .btn-primary-sm {
-  background: #1a4fa0; color: white; border: none; padding: 9px 20px;
+  background: #145c4a; color: white; border: none; padding: 9px 20px;
   border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer;
   font-family: 'Outfit', sans-serif;
 }

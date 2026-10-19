@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./AuthContext";
@@ -20,18 +20,13 @@ import "./App.css";
 
 function AppInner() {
   const { user } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (!user) return <Login />;
 
   return (
     <div className="app-layout">
-      <Sidebar
-        expanded={sidebarOpen}
-        onEnter={() => setSidebarOpen(true)}
-        onLeave={() => setSidebarOpen(false)}
-      />
-      <div className={`app-content ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
+      <Sidebar />
+      <div className="app-content">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/vie-scolaire" element={<VieScolaire />} />

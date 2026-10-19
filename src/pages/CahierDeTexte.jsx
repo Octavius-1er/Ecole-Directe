@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useData } from "../DataContext";
+import { canTeach, viewerClasseId } from "../roles";
 import "./CahierDeTexte.css";
 
 const MONTH_NAMES = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
@@ -50,22 +51,18 @@ function buildCalendar(year, month) {
 export default function CahierDeTextes() {
   const { user }  = useAuth();
   const { classes, getDevoirsClasse, addDevoirClasse, removeDevoirClasse, updateDevoirEffectue } = useData();
-  const canEdit   = user?.role === "admin" || user?.role === "prof";
+  const canEdit   = canTeach(user);
+  const lockedClasse = viewerClasseId(user);
+  const [selectedClasse, setSelectedClasse] = useState(lockedClasse || Object.keys(classes)[0] || "");
+  useEffect(() => {
+    if (!lockedClasse && !selectedClasse && Object.keys(classes)[0]) setSelectedClasse(Object.keys(classes)[0]);
+  }, [classes, lockedClasse, selectedClasse]);
+  const classeId = lockedClasse || selectedClasse;
 
-  // Classe
-  const eleveClasse = user?.role === "eleve" ? user?.classeId : null;
-  const [selectedClasse, setSelectedClasse] = useState(eleveClasse || Object.keys(classes)[0] || "");
-  const classeId = user?.role === "eleve" ? eleveClasse : selectedClasse;
-
-  // Calendrier
-  const [calMonth, setCalMonth] = useState(2);
+  const [calMonth, setCalMonth] = useState(9);
   const [calYear,  setCalYear]  = useState(2026);
-
-  // Sélection jour
-  const [selected, setSelected] = useState({ day: 10, month: 2, year: 2026 });
-
-  // Semaine courante (lundi de la semaine)
-  const [weekMonday, setWeekMonday] = useState(() => getMondayOf(new Date(2026, 2, 9)));
+  const [selected, setSelected] = useState({ day: 20, month: 9, year: 2026 });
+  const [weekMonday, setWeekMonday] = useState(() => getMondayOf(new Date(2026, 9, 19)));
   const weekDays = getWeekDays(weekMonday);
 
   function prevWeek() {
@@ -162,7 +159,8 @@ export default function CahierDeTextes() {
             {DAY_NAMES.map((d, i) => <span key={i} className="cal-dayname">{d}</span>)}
             {calDays.map((d, i) => {
               const isSelected = d.currentMonth && d.day === selected.day && calMonth === selected.month && calYear === selected.year;
-              const isToday    = d.currentMonth && d.day === 10 && calMonth === 2 && calYear === 2026;
+              const today = new Date();
+              const isToday = d.currentMonth && d.day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
               const hasDev     = d.currentMonth && (devoirsClasse[`${calYear}-${calMonth}-${d.day}`]?.items?.length || devoirsClasse[d.day]?.items?.length);
               return (
                 <span key={i}

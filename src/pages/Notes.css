@@ -4,7 +4,7 @@
 
 /* ── Header ── */
 .notes-header { margin-bottom: 16px; }
-.notes-title { font-size: 22px; color: #1a4fa0; font-weight: 800; margin-bottom: 10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.notes-title { font-size: 22px; color: #145c4a; font-weight: 800; margin-bottom: 10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .notes-eleve-chip { font-size: 16px; font-weight: 600; color: #64748b; }
 
 /* ── Sélecteurs ── */
@@ -12,12 +12,12 @@
 .selector-group { display:flex; flex-direction:column; gap:3px; }
 .selector-group label { font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; }
 .selector-group select { padding:6px 10px; border:1.5px solid #dde3ef; border-radius:7px; font-size:13px; font-family:'Outfit',sans-serif; outline:none; min-width:150px; }
-.selector-group select:focus { border-color:#1a4fa0; }
+.selector-group select:focus { border-color:#145c4a; }
 
 /* ── Onglets trimestres ── */
 .trim-tabs { display:flex; gap:0; border-bottom:2px solid #e2e8f0; margin-bottom:0; flex-wrap:wrap; }
 .trim-tab { padding:9px 18px; border:none; background:none; font-size:13px; font-weight:600; color:#64748b; cursor:pointer; font-family:'Outfit',sans-serif; border-bottom:2px solid transparent; margin-bottom:-2px; transition:0.15s; }
-.trim-tab.active { color:#1a4fa0; border-bottom-color:#1a4fa0; }
+.trim-tab.active { color:#145c4a; border-bottom-color:#145c4a; }
 .trim-tab:hover:not(.active) { color:#334155; background:#f8faff; }
 
 /* ── Relevés ── */
@@ -28,7 +28,7 @@
 /* ── Onglets contenu (Evaluations / Moyennes / ...) ── */
 .content-tabs-bar { display:flex; gap:4px; background:#f0f4fb; border-radius:8px; padding:4px; margin-bottom:16px; flex-wrap:wrap; }
 .content-tab { padding:7px 16px; border:none; background:none; border-radius:6px; font-size:13px; font-weight:600; color:#64748b; cursor:pointer; font-family:'Outfit',sans-serif; transition:0.15s; }
-.content-tab.active { background:white; color:#1a4fa0; box-shadow:0 1px 4px rgba(0,0,0,0.10); }
+.content-tab.active { background:white; color:#145c4a; box-shadow:0 1px 4px rgba(0,0,0,0.10); }
 .content-tab:hover:not(.active) { background:#e8eef8; }
 
 /* ── Cards ── */
@@ -45,7 +45,7 @@
 .tr-matiere:hover { background:#fafbff; }
 
 /* En-tête bleue style EcoleDirecte */
-.thead-blue th { background:#1a4fa0; color:white !important; border-bottom:none; font-size:11px; }
+.thead-blue th { background:#145c4a; color:white !important; border-bottom:none; font-size:11px; }
 .thead-sub-blue th { background:#2563b0; color:white !important; border-bottom:none; font-size:10px; }
 
 /* ── Table Évaluations ── */
@@ -56,15 +56,15 @@
 .td-discipline { font-weight:700; color:#1e293b; font-size:13px; }
 .td-coef { text-align:center; color:#64748b; }
 .td-moy-inline { font-weight:700; color:#1e293b; white-space:nowrap; text-align:center; }
-.td-moy-inline.bold { color:#1a4fa0; font-size:15px; }
+.td-moy-inline.bold { color:#145c4a; font-size:15px; }
 .moy-dot-inline { display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:6px; vertical-align:middle; }
 .td-evals { }
 .eval-chips-row { display:flex; flex-wrap:wrap; gap:5px; }
-.eval-chip { background:#eff6ff; color:#1a4fa0; border:1.5px solid #bfdbfe; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; transition:0.15s; display:flex; align-items:center; gap:5px; }
+.eval-chip { background:#eff6ff; color:#145c4a; border:1.5px solid #bfdbfe; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; transition:0.15s; display:flex; align-items:center; gap:5px; }
 .eval-chip:hover { background:#dbeafe; transform:translateY(-1px); }
 .chip-del { color:#dc2626; font-size:13px; }
 .tr-moy-gen-inline td { background:#f0f4fb; font-size:13px; }
-.moy-gen-label { font-size:11px; font-weight:700; color:#1a4fa0; text-transform:uppercase; letter-spacing:0.5px; }
+.moy-gen-label { font-size:11px; font-weight:700; color:#145c4a; text-transform:uppercase; letter-spacing:0.5px; }
 
 /* ── Table Moyennes ── */
 .col-moy-header { text-align:center; }
@@ -107,25 +107,25 @@
 /* ── Formulaire saisie éval ── */
 .notes-actions { display:flex; align-items:center; gap:12px; padding:8px 0; flex-wrap:wrap; }
 .eval-form { background:white; border-radius:12px; padding:20px; box-shadow:0 4px 20px rgba(0,0,0,0.10); margin-bottom:16px; border:1.5px solid #bfdbfe; }
-.eval-form-title { font-size:15px; font-weight:800; color:#1a4fa0; margin-bottom:16px; padding-bottom:10px; border-bottom:1.5px solid #f1f5f9; }
-.eval-form-title span { color:#2563eb; }
+.eval-form-title { font-size:15px; font-weight:800; color:#145c4a; margin-bottom:16px; padding-bottom:10px; border-bottom:1.5px solid #f1f5f9; }
+.eval-form-title span { color:#145c4a; }
 .eval-form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; margin-bottom:16px; }
 .eval-field { display:flex; flex-direction:column; gap:4px; }
 .eval-field label { font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; }
 .eval-field input, .eval-field select { padding:8px 10px; border:1.5px solid #dde3ef; border-radius:7px; font-size:13px; font-family:'Outfit',sans-serif; outline:none; }
-.eval-field input:focus, .eval-field select:focus { border-color:#1a4fa0; }
+.eval-field input:focus, .eval-field select:focus { border-color:#145c4a; }
 .eval-notes-section { margin-bottom:16px; }
 .eval-notes-section h4, .eval-comp-section h4 { font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
 .optional { font-weight:400; color:#94a3b8; text-transform:none; font-size:11px; }
 .eval-notes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:7px; }
 .eval-note-row { display:flex; align-items:center; justify-content:space-between; gap:8px; background:#f8faff; border-radius:7px; padding:7px 10px; border:1.5px solid #e2e8f0; }
 .eval-eleve-name { font-size:13px; font-weight:600; color:#334155; flex:1; }
-.eval-note-input { width:65px; padding:5px 8px; border:1.5px solid #dde3ef; border-radius:6px; font-size:13px; text-align:center; outline:none; font-weight:700; color:#1a4fa0; font-family:'Outfit',sans-serif; }
-.eval-note-input:focus { border-color:#1a4fa0; background:#eff6ff; }
+.eval-note-input { width:65px; padding:5px 8px; border:1.5px solid #dde3ef; border-radius:6px; font-size:13px; text-align:center; outline:none; font-weight:700; color:#145c4a; font-family:'Outfit',sans-serif; }
+.eval-note-input:focus { border-color:#145c4a; background:#eff6ff; }
 .eval-comp-section { margin-bottom:16px; }
 .eval-comp-add { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
 .eval-comp-add input { flex:1; min-width:120px; padding:7px 10px; border:1.5px solid #dde3ef; border-radius:7px; font-size:13px; font-family:'Outfit',sans-serif; outline:none; }
-.eval-comp-add input:focus { border-color:#1a4fa0; }
+.eval-comp-add input:focus { border-color:#145c4a; }
 .comp-chip-full { background:#f8faff; border:1.5px solid #e2e8f0; border-radius:10px; padding:10px 12px; margin-bottom:8px; }
 .comp-chip-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:13px; color:#334155; }
 .comp-del { background:none; border:none; cursor:pointer; color:#94a3b8; font-size:18px; padding:0 3px; border-radius:4px; }
@@ -155,18 +155,18 @@
 .modal-card { background:white; border-radius:16px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.2); animation:slideUp 0.25s ease; }
 @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
 .modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px 14px; border-bottom:1.5px solid #f1f5f9; }
-.modal-header h2 { font-size:17px; font-weight:800; color:#1a4fa0; margin:0; }
+.modal-header h2 { font-size:17px; font-weight:800; color:#145c4a; margin:0; }
 .modal-close { background:#f1f5f9; border:none; border-radius:50%; width:30px; height:30px; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748b; }
 .modal-close:hover { background:#fee2e2; color:#dc2626; }
 .modal-body { padding:18px 22px; }
 .modal-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
 .modal-info-item { display:flex; flex-direction:column; gap:3px; }
 .info-label { font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; }
-.info-note { font-size:22px; font-weight:800; color:#1a4fa0; }
+.info-note { font-size:22px; font-weight:800; color:#145c4a; }
 .modal-stats { display:flex; gap:10px; background:#f0f4fb; border-radius:10px; padding:11px 14px; margin-bottom:14px; }
 .stat-item { display:flex; flex-direction:column; gap:2px; flex:1; text-align:center; }
 .stat-label { font-size:10px; color:#94a3b8; font-weight:600; }
-.stat-item strong { font-size:15px; color:#1a4fa0; }
+.stat-item strong { font-size:15px; color:#145c4a; }
 .modal-comps h4 { font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:10px; }
 .modal-comp-row { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid #f1f5f9; flex-wrap:wrap; }
 .comp-info { display:flex; flex-direction:column; gap:2px; }
@@ -177,10 +177,10 @@
 .comp-niveau-display.active { font-weight:700; }
 
 /* ── Boutons ── */
-.btn-saisir { background:#eff6ff; color:#1a4fa0; border:1.5px solid #bfdbfe; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; }
+.btn-saisir { background:#eff6ff; color:#145c4a; border:1.5px solid #bfdbfe; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif; }
 .btn-saisir:hover { background:#dbeafe; }
 .btn-saisir.sm { padding:6px 12px; font-size:12px; }
-.btn-primary-sm { background:#1a4fa0; color:white; border:none; padding:10px 22px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; }
+.btn-primary-sm { background:#145c4a; color:white; border:none; padding:10px 22px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif; }
 .btn-primary-sm:hover { opacity:0.88; }
 .btn-primary-sm:disabled { opacity:0.5; cursor:not-allowed; }
 .btn-del-sm { background:#fee2e2; color:#dc2626; border:none; padding:5px 10px; border-radius:6px; font-size:12px; cursor:pointer; font-weight:600; }

@@ -1,28 +1,36 @@
-.dashboard-container {
-  padding: 32px 24px;
-  animation: fadeUp 0.3s ease;
+.dashboard-container { animation: fadeUp 0.35s ease; }
+
+.dashboard-hero {
+  margin-bottom: 28px;
+  padding: 28px 32px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(224,122,61,0.18), transparent 42%),
+    linear-gradient(160deg, #17332e, #12211e);
+  color: #f6f3ee;
 }
 
-.dashboard-header {
-  margin-bottom: 32px;
+.dashboard-kicker {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e7b15a;
+  margin-bottom: 8px;
 }
 
-.dashboard-header h1 {
-  font-size: 28px;
-  font-weight: 800;
-  color: #1a4fa0;
-  margin-bottom: 6px;
+.dashboard-hero h1 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 40px;
+  font-weight: 560;
+  letter-spacing: -0.03em;
 }
 
-.dashboard-sub {
-  font-size: 15px;
-  color: #64748b;
-}
+.dashboard-sub { margin-top: 8px; color: #d5deda; }
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 14px;
 }
 
 .dashboard-card {
@@ -30,34 +38,29 @@
   align-items: center;
   gap: 16px;
   background: white;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 18px;
+  padding: 18px;
   text-decoration: none;
-  color: inherit;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  border: 1.5px solid transparent;
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  color: #17211e;
+  border: 1px solid #e6e1d8;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .dashboard-card:hover {
-  border-color: #1a4fa0;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(26,79,160,0.12);
+  box-shadow: 0 12px 30px rgba(18,33,30,0.08);
 }
 
 .card-icon {
-  font-size: 32px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: #f3eee6;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
   flex-shrink: 0;
 }
 
-.card-label {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 3px;
-}
-
-.card-desc {
-  font-size: 13px;
-  color: #94a3b8;
-}
+.card-label { font-weight: 700; }
+.card-desc { margin-top: 3px; font-size: 13px; color: #6d756f; }

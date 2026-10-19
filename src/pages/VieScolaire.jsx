@@ -1,20 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useData } from "../DataContext";
+import { viewerClasseId, viewerEleveId } from "../roles";
 import "./VieScolaire.css";
 
 export default function VieScolaire(){
   const {user,accounts}=useAuth();
   const {classes,getAbsencesEleve,getPunitionsEleve,addAbsence,removeAbsence,addPunition,removePunition}=useData();
   const canEdit=user?.role==="admin";
+  const lockedClasse=viewerClasseId(user);
+  const lockedEleve=viewerEleveId(user);
 
-  // Sélecteur de classe + élève
-  const [selectedClasse,setSelectedClasse]=useState(
-    user?.role==="eleve" ? (accounts.find(a=>a.id===user.id)?.classeId||"") : Object.keys(classes)[0]||""
-  );
+  const [selectedClasse,setSelectedClasse]=useState(lockedClasse || Object.keys(classes)[0]||"");
+  useEffect(()=>{
+    if(!lockedClasse && !selectedClasse && Object.keys(classes)[0]) setSelectedClasse(Object.keys(classes)[0]);
+  },[classes, lockedClasse, selectedClasse]);
   const elevesDeClasse=accounts.filter(a=>a.role==="eleve"&&a.classeId===selectedClasse);
-  const [selectedEleve,setSelectedEleve]=useState(user?.role==="eleve"?user.id:null);
-  const targetId=user?.role==="eleve"?user.id:selectedEleve;
+  const [selectedEleve,setSelectedEleve]=useState(lockedEleve||null);
+  const targetId=lockedEleve||selectedEleve;
 
   const absences=targetId?getAbsencesEleve(targetId):[];
   const punitions=targetId?getPunitionsEleve(targetId):[];

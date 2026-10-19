@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { saveDoc, subscribe } from "./localStore";
+import { DATA_VERSION, SEED_DATA } from "./seed";
 
 const DataContext = createContext(null);
 
@@ -28,6 +29,10 @@ export function DataProvider({ children }) {
   const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
+    if (localStorage.getItem("ed_data_version") !== DATA_VERSION) {
+      Object.entries(SEED_DATA).forEach(([key, value]) => saveDoc(key, value));
+      localStorage.setItem("ed_data_version", DATA_VERSION);
+    }
     const docs = [
       ["classes", setClasses, {}],
       ["evals", setEvals, []],
