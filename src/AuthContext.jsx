@@ -1,13 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase";
+import { saveDoc, subscribe } from "./localStore";
 
 const AuthContext = createContext(null);
 
+const ACCOUNTS_VERSION = "2";
+
 const DEFAULT_ACCOUNTS = [
-  { id:"1", username:"admin",   password:"admin123", role:"admin", nom:"Administrateur", prenom:"Principal" },
-  { id:"2", username:"fischer", password:"prof123",  role:"prof",  nom:"Fischer",        prenom:"N.", matiere:"Français" },
-  { id:"3", username:"octave",  password:"eleve123", role:"eleve", nom:"Le Chatelier Gaign.", prenom:"Octave", classe:"5ème F EUROP." },
+  { id:"1", username:"admin",    password:"admin123", role:"admin", nom:"Administrateur",       prenom:"Principal" },
+  { id:"2", username:"morel",    password:"admin123", role:"admin", nom:"Morel",                prenom:"Sophie" },
+  { id:"3", username:"lefevre",  password:"admin123", role:"admin", nom:"Lefèvre",              prenom:"Jean" },
+  { id:"4", username:"fischer",  password:"prof123",  role:"prof",  nom:"Fischer",              prenom:"N.",    matiere:"Français" },
+  { id:"5", username:"durand",   password:"prof123",  role:"prof",  nom:"Durand",               prenom:"L.",    matiere:"Mathématiques" },
+  { id:"6", username:"bernard",  password:"prof123",  role:"prof",  nom:"Bernard",              prenom:"C.",    matiere:"Histoire-Géographie" },
+  { id:"7", username:"octave",   password:"eleve123", role:"eleve", nom:"Le Chatelier Gaign.",  prenom:"Octave", classe:"5ème F EUROP." },
+  { id:"8", username:"marie",    password:"eleve123", role:"eleve", nom:"Dupont",               prenom:"Marie",  classe:"5ème F EUROP." },
+  { id:"9", username:"lucas",    password:"eleve123", role:"eleve", nom:"Martin",               prenom:"Lucas",  classe:"4ème A" },
 ];
 
 export function AuthProvider({ children }) {
@@ -15,28 +22,27 @@ export function AuthProvider({ children }) {
   const [accounts, setAccounts] = useState(DEFAULT_ACCOUNTS);
   const [ready,    setReady]    = useState(false);
 
-  // ── Sync comptes depuis Firestore ──
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "app", "accounts"), snap => {
-      if (snap.exists() && snap.data().data?.length) {
-        const remoteAccounts = snap.data().data;
-        setAccounts(remoteAccounts);
+    if (localStorage.getItem("ed_accounts_version") !== ACCOUNTS_VERSION) {
+      saveDoc("accounts", DEFAULT_ACCOUNTS);
+      localStorage.setItem("ed_accounts_version", ACCOUNTS_VERSION);
+    }
+    const unsub = subscribe("accounts", (stored) => {
+      if (!stored?.length) {
+        saveDoc("accounts", DEFAULT_ACCOUNTS);
+        return;
+      }
+      setAccounts(stored);
 
-        // Mettre à jour la session locale si le compte a changé (ex : mot de passe changé depuis un autre appareil)
-        const savedId = localStorage.getItem("ed_session_id");
-        if (savedId) {
-          const found = remoteAccounts.find(a => a.id === savedId);
-          if (found) {
-            setUser(found);
-          } else {
-            // Compte supprimé
-            setUser(null);
-            localStorage.removeItem("ed_session_id");
-          }
+      const savedId = localStorage.getItem("ed_session_id");
+      if (savedId) {
+        const found = stored.find(a => a.id === savedId);
+        if (found) {
+          setUser(found);
+        } else {
+          setUser(null);
+          localStorage.removeItem("ed_session_id");
         }
-      } else {
-        // Premier lancement : initialiser avec les comptes par défaut
-        saveAccounts(DEFAULT_ACCOUNTS);
       }
       setReady(true);
     });
@@ -44,7 +50,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function saveAccounts(list) {
-    await setDoc(doc(db, "app", "accounts"), { data: list, updatedAt: serverTimestamp() }, );
+    saveDoc("accounts", list);
   }
 
   function login(username, password) {

@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { doc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase";
+import { saveDoc, subscribe } from "./localStore";
 
 const DataContext = createContext(null);
 
@@ -29,23 +28,29 @@ export function DataProvider({ children }) {
   const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
-    let loaded = 0; const total = 8;
-    function tick() { loaded++; if (loaded >= total) setLoading(false); }
-    const unsubs = [
-      onSnapshot(doc(db,"app","classes"),     s => { setClasses(s.exists()     ? s.data().data||{} : {}); tick(); }),
-      onSnapshot(doc(db,"app","evals"),       s => { setEvals(s.exists()       ? s.data().data||[] : []); tick(); }),
-      onSnapshot(doc(db,"app","devoirsPC"),   s => { setDevoirsPC(s.exists()   ? s.data().data||{} : {}); tick(); }),
-      onSnapshot(doc(db,"app","edtPC"),       s => { setEdtPC(s.exists()       ? s.data().data||{} : {}); tick(); }),
-      onSnapshot(doc(db,"app","absencesPE"),  s => { setAbsencesPE(s.exists()  ? s.data().data||{} : {}); tick(); }),
-      onSnapshot(doc(db,"app","punitionsPE"), s => { setPunitionsPE(s.exists() ? s.data().data||{} : {}); tick(); }),
-      onSnapshot(doc(db,"app","messages"),    s => { setMessages(s.exists()    ? s.data().data||[] : []); tick(); }),
-      onSnapshot(doc(db,"app","periode"),     s => { setPeriode(s.exists()     ? s.data().data||{ releveId:"r5", trimestreId:"t3" } : { releveId:"r5", trimestreId:"t3" }); tick(); }),
+    const docs = [
+      ["classes", setClasses, {}],
+      ["evals", setEvals, []],
+      ["devoirsPC", setDevoirsPC, {}],
+      ["edtPC", setEdtPC, {}],
+      ["absencesPE", setAbsencesPE, {}],
+      ["punitionsPE", setPunitionsPE, {}],
+      ["messages", setMessages, []],
+      ["periode", setPeriode, { releveId: "r5", trimestreId: "t3" }],
     ];
+    let loaded = 0;
+    const unsubs = docs.map(([key, setter, fallback]) =>
+      subscribe(key, (stored) => {
+        setter(stored == null ? fallback : stored);
+        loaded++;
+        if (loaded >= docs.length) setLoading(false);
+      })
+    );
     return () => unsubs.forEach(u => u());
   }, []);
 
   async function save(key, data) {
-    await setDoc(doc(db, "app", key), { data, updatedAt: serverTimestamp() });
+    saveDoc(key, data);
   }
 
   async function savePeriode(p) {
